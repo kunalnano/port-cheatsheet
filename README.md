@@ -43,7 +43,7 @@ Add patterns directly to the `patterns` array in `index.html`:
 }
 ```
 
-PR it or ping Hank.
+PR it or ping moi.
 
 ---
 
