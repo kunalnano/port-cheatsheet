@@ -114,7 +114,7 @@
         <header>
             <h1>🚀 Port.io Implementation Cheat Sheet</h1>
             <p class="subtitle">Copy-paste patterns for blueprints, mappings, actions, and automations</p>
-            <p class="version">Last updated: January 5, 2026 • v2.5</p>
+            <p class="version">Last updated: January 5, 2026 • v2.6</p>
             <div class="header-actions">
                 <button type="button" class="header-btn" onclick="window.print()" aria-label="Print this page or save as PDF">🖨️ Print / Save PDF</button>
                 <a href="https://docs.port.io" target="_blank" rel="noopener noreferrer" class="header-btn" aria-label="Open Port.io documentation">📚 Full Docs</a>
@@ -1531,7 +1531,7 @@ curl -X PATCH "https://api.getport.io/v1/actions/runs/RUN_ID" \\
                 const categoryDisplay = p.category === 'jq' ? 'JQ' : 
                                         p.category.charAt(0).toUpperCase() + p.category.slice(1);
                 return `
-                <div class="pattern-card" id="${p.id}">
+                <div class="pattern-card" id="${p.id}" tabindex="-1">
                     <div class="card-header">
                         <div class="card-meta-row">
                             <span class="card-category cat-${p.category}">${categoryDisplay}</span>
@@ -1610,18 +1610,21 @@ curl -X PATCH "https://api.getport.io/v1/actions/runs/RUN_ID" \\
             if (!window.location.hash) return;
             const id = window.location.hash.slice(1);
             
-            // Reset filters to ensure card is visible
-            activeCategory = 'all';
-            searchTerm = '';
-            document.getElementById('searchBox').value = '';
-            document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
-            document.querySelector('.category-btn[data-category="all"]').classList.add('active');
-            renderPatterns();
-            
-            const element = document.getElementById(id);
+            // If element exists already, don't nuke filters/search
+            let element = document.getElementById(id);
+            if (!element) {
+                activeCategory = 'all';
+                searchTerm = '';
+                document.getElementById('searchBox').value = '';
+                document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
+                document.querySelector('.category-btn[data-category="all"]').classList.add('active');
+                renderPatterns();
+                element = document.getElementById(id);
+            }
             if (element) {
                 setTimeout(() => {
                     element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    element.focus({ preventScroll: true });
                 }, 100);
             }
         }
