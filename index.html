@@ -79,7 +79,7 @@
         .cat-api { background: #ec4899; color: white; }
         .cat-troubleshooting { background: #f97316; color: white; }
         
-        .validation-badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: 500; margin-left: 8px; }
+        .validation-badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: 500; }
         .validation-production { background: rgba(34, 197, 94, 0.15); color: #22c55e; border: 1px solid rgba(34, 197, 94, 0.3); }
         .validation-tested { background: rgba(59, 130, 246, 0.15); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.3); }
         .validation-adapt { background: rgba(251, 191, 36, 0.15); color: #fbbf24; border: 1px solid rgba(251, 191, 36, 0.3); }
@@ -114,10 +114,10 @@
         <header>
             <h1>🚀 Port.io Implementation Cheat Sheet</h1>
             <p class="subtitle">Copy-paste patterns for blueprints, mappings, actions, and automations</p>
-            <p class="version">Last updated: January 5, 2026 • v2.3</p>
+            <p class="version">Last updated: January 5, 2026 • v2.5</p>
             <div class="header-actions">
-                <button class="header-btn" onclick="window.print()" aria-label="Print this page or save as PDF">🖨️ Print / Save PDF</button>
-                <a href="https://docs.port.io" target="_blank" class="header-btn" aria-label="Open Port.io documentation">📚 Full Docs</a>
+                <button type="button" class="header-btn" onclick="window.print()" aria-label="Print this page or save as PDF">🖨️ Print / Save PDF</button>
+                <a href="https://docs.port.io" target="_blank" rel="noopener noreferrer" class="header-btn" aria-label="Open Port.io documentation">📚 Full Docs</a>
             </div>
         </header>
         
@@ -129,19 +129,19 @@
         <div class="controls">
             <input type="text" class="search-box" id="searchBox" placeholder="Search patterns (e.g., 'kubernetes', 'jq time', 'webhook')..." aria-label="Search patterns">
             <div class="category-filters" role="group" aria-label="Filter by category">
-                <button class="category-btn active" data-category="all">All</button>
-                <button class="category-btn" data-category="blueprints">Blueprints</button>
-                <button class="category-btn" data-category="mapping">Mapping</button>
-                <button class="category-btn" data-category="actions">Actions</button>
-                <button class="category-btn" data-category="scorecards">Scorecards</button>
-                <button class="category-btn" data-category="automations">Automations</button>
-                <button class="category-btn" data-category="jq">JQ</button>
-                <button class="category-btn" data-category="api">API</button>
-                <button class="category-btn" data-category="troubleshooting">Troubleshooting</button>
+                <button type="button" class="category-btn active" data-category="all">All</button>
+                <button type="button" class="category-btn" data-category="blueprints">Blueprints</button>
+                <button type="button" class="category-btn" data-category="mapping">Mapping</button>
+                <button type="button" class="category-btn" data-category="actions">Actions</button>
+                <button type="button" class="category-btn" data-category="scorecards">Scorecards</button>
+                <button type="button" class="category-btn" data-category="automations">Automations</button>
+                <button type="button" class="category-btn" data-category="jq">JQ</button>
+                <button type="button" class="category-btn" data-category="api">API</button>
+                <button type="button" class="category-btn" data-category="troubleshooting">Troubleshooting</button>
             </div>
         </div>
 
-        <div class="status" id="status" aria-live="polite">Loading patterns...</div>
+        <div class="status" id="status" aria-live="polite"></div>
         <div class="pattern-grid" id="patternGrid"></div>
 
         <div class="trust-footer">
@@ -155,7 +155,7 @@
         </div>
 
         <div class="footer">
-            💡 Click copy to grab snippets • Use 🔗 to share specific patterns • <a href="https://docs.port.io" target="_blank">docs.port.io</a> for full documentation
+            💡 Click copy to grab snippets • Use 🔗 to share specific patterns • <a href="https://docs.port.io" target="_blank" rel="noopener noreferrer">docs.port.io</a> for full documentation
         </div>
     </div>
 
@@ -938,8 +938,8 @@ curl -X POST "https://ingest.getport.io/<YOUR_WEBHOOK_ID>" \\
                 problem: 'Run automation when a date property passes',
                 description: 'Automation that fires when a timer/date property value is reached.',
                 code: `{
-  "identifier": "daily_stale_check",
-  "title": "Daily Stale Service Check",
+  "identifier": "review_date_expired",
+  "title": "Review Date Expired",
   "trigger": {
     "type": "automation",
     "event": {
@@ -1517,7 +1517,11 @@ curl -X PATCH "https://api.getport.io/v1/actions/runs/RUN_ID" \\
 
             grid.innerHTML = filtered.map(p => {
                 const validValues = ['production', 'tested', 'adapt'];
-                const validation = validValues.includes(p.validated) ? p.validated : (console.warn(`Unknown validation "${p.validated}" for ${p.id}`), 'adapt');
+                let validation = p.validated;
+                if (!validValues.includes(validation)) {
+                    console.warn(`Unknown validation "${p.validated}" for ${p.id}`);
+                    validation = 'adapt';
+                }
                 const badgeClass = validation === 'production' ? 'validation-production' : 
                                    validation === 'tested' ? 'validation-tested' : 'validation-adapt';
                 const badgeIcon = validation === 'production' ? '✅' : 
@@ -1535,7 +1539,7 @@ curl -X PATCH "https://api.getport.io/v1/actions/runs/RUN_ID" \\
                         </div>
                         <div class="card-title-row">
                             <h3 class="card-title">${escapeHtml(p.title)}</h3>
-                            <button class="link-btn" data-id="${p.id}" aria-label="Copy link to ${escapeHtml(p.title)} pattern" title="Copy link">🔗</button>
+                            <button type="button" class="link-btn" data-id="${p.id}" aria-label="Copy link to ${escapeHtml(p.title)} pattern" title="Copy link">🔗</button>
                         </div>
                         ${p.problem ? `<p class="card-problem">💡 ${escapeHtml(p.problem)}</p>` : ''}
                         <p class="card-description">${escapeHtml(p.description)}</p>
@@ -1544,7 +1548,7 @@ curl -X PATCH "https://api.getport.io/v1/actions/runs/RUN_ID" \\
                         <div class="code-block">
                             <div class="code-header">
                                 <span class="code-label">Code</span>
-                                <button class="copy-btn" data-id="${p.id}" aria-label="Copy ${escapeHtml(p.title)} code snippet">Copy</button>
+                                <button type="button" class="copy-btn" data-id="${p.id}" aria-label="Copy ${escapeHtml(p.title)} code snippet">Copy</button>
                             </div>
                             <pre>${escapeHtml(p.code)}</pre>
                         </div>
@@ -1603,14 +1607,22 @@ curl -X PATCH "https://api.getport.io/v1/actions/runs/RUN_ID" \\
 
         // Handle deep links on page load
         function handleDeepLink() {
-            if (window.location.hash) {
-                const id = window.location.hash.slice(1);
-                const element = document.getElementById(id);
-                if (element) {
-                    setTimeout(() => {
-                        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                    }, 100);
-                }
+            if (!window.location.hash) return;
+            const id = window.location.hash.slice(1);
+            
+            // Reset filters to ensure card is visible
+            activeCategory = 'all';
+            searchTerm = '';
+            document.getElementById('searchBox').value = '';
+            document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
+            document.querySelector('.category-btn[data-category="all"]').classList.add('active');
+            renderPatterns();
+            
+            const element = document.getElementById(id);
+            if (element) {
+                setTimeout(() => {
+                    element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }, 100);
             }
         }
 
