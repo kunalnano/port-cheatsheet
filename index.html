@@ -113,7 +113,7 @@
         <header>
             <h1>🚀 Port.io Implementation Cheat Sheet</h1>
             <p class="subtitle">Copy-paste patterns for blueprints, mappings, actions, and automations</p>
-            <p class="version">Last updated: January 5, 2026 • v2.1</p>
+            <p class="version">Last updated: January 5, 2026 • v2.2</p>
             <div class="header-actions">
                 <button class="header-btn" onclick="window.print()" aria-label="Print this page or save as PDF">🖨️ Print / Save PDF</button>
                 <a href="https://docs.port.io" target="_blank" class="header-btn" aria-label="Open Port.io documentation">📚 Full Docs</a>
@@ -155,10 +155,6 @@
 
         <div class="footer">
             💡 Click copy to grab snippets • Use 🔗 to share specific patterns • <a href="https://docs.port.io" target="_blank">docs.port.io</a> for full documentation
-            <p style="margin-top: 12px; font-size: 0.8rem; color: #475569;">
-                Patterns follow Port's documented API structures and are used in real implementations.<br>
-                Exact field names, blueprint identifiers, and relation targets will need adaptation to your org.
-            </p>
         </div>
     </div>
 
@@ -204,6 +200,7 @@
             },
             {
                 id: 'arrays-objects',
+                validated: 'production',
                 category: 'blueprints',
                 title: 'Arrays & Objects',
                 problem: 'Need to store lists or complex nested data',
@@ -234,6 +231,7 @@
             },
             {
                 id: 'mirror-property',
+                validated: 'production',
                 category: 'blueprints',
                 title: 'Mirror Property',
                 problem: 'Want to display data from a related entity',
@@ -260,6 +258,7 @@
             },
             {
                 id: 'calculation-property',
+                validated: 'tested',
                 category: 'blueprints',
                 title: 'Calculation Property',
                 problem: 'Need computed values from entity properties',
@@ -290,10 +289,11 @@
             },
             {
                 id: 'aggregation-property',
+                validated: 'adapt',
                 category: 'blueprints',
                 title: 'Aggregation Property',
                 problem: 'Need to count or aggregate related entities',
-                description: 'Aggregations compute metrics across related entities.',
+                description: 'Aggregations compute metrics across related entities. Query rules reference the relation property.',
                 code: `{
   "identifier": "team",
   "aggregationProperties": {
@@ -332,6 +332,7 @@
             // ==================== MAPPING ====================
             {
                 id: 'github-repo-mapping',
+                validated: 'production',
                 category: 'mapping',
                 title: 'GitHub Repository Mapping',
                 problem: 'Import repos from GitHub into Port',
@@ -361,10 +362,11 @@
             },
             {
                 id: 'k8s-deployment-mapping',
+                validated: 'adapt',
                 category: 'mapping',
                 title: 'Kubernetes Deployment Mapping',
                 problem: 'Import K8s deployments into Port',
-                description: 'Maps Kubernetes deployment resources to Port entities.',
+                description: 'Maps Kubernetes deployment resources to Port entities. Resource kind format may vary by exporter.',
                 code: `resources:
   - kind: apps/v1/deployments
     selector:
@@ -390,6 +392,7 @@
             },
             {
                 id: 'argocd-app-mapping',
+                validated: 'production',
                 category: 'mapping',
                 title: 'ArgoCD Application Mapping',
                 problem: 'Import ArgoCD apps with sync status',
@@ -420,6 +423,7 @@
             },
             {
                 id: 'terraform-workspace-mapping',
+                validated: 'tested',
                 category: 'mapping',
                 title: 'Terraform Cloud Workspace',
                 problem: 'Import Terraform workspaces into Port',
@@ -450,6 +454,7 @@
             },
             {
                 id: 'search-relation',
+                validated: 'production',
                 category: 'mapping',
                 title: 'Search-Based Relation',
                 problem: 'Create relations based on matching properties',
@@ -479,6 +484,7 @@
             },
             {
                 id: 'webhook-mapping',
+                validated: 'adapt',
                 category: 'mapping',
                 title: 'Generic Webhook Mapping',
                 problem: 'Ingest data from any webhook source',
@@ -510,6 +516,7 @@ curl -X POST "https://ingest.getport.io/<YOUR_WEBHOOK_ID>" \\
             // ==================== ACTIONS ====================
             {
                 id: 'basic-self-service-action',
+                validated: 'production',
                 category: 'actions',
                 title: 'Basic Self-Service Action',
                 problem: 'Enable developers to trigger operations',
@@ -555,6 +562,7 @@ curl -X POST "https://ingest.getport.io/<YOUR_WEBHOOK_ID>" \\
             },
             {
                 id: 'entity-selection-input',
+                validated: 'production',
                 category: 'actions',
                 title: 'Entity Selection Input',
                 problem: 'Let users pick from existing entities',
@@ -600,6 +608,7 @@ curl -X POST "https://ingest.getport.io/<YOUR_WEBHOOK_ID>" \\
             },
             {
                 id: 'create-entity-action',
+                validated: 'adapt',
                 category: 'actions',
                 title: 'Create Entity Action',
                 problem: 'Create new entities via self-service',
@@ -637,6 +646,7 @@ curl -X POST "https://ingest.getport.io/<YOUR_WEBHOOK_ID>" \\
             },
             {
                 id: 'action-with-approval',
+                validated: 'production',
                 category: 'actions',
                 title: 'Action with Approval',
                 problem: 'Require approval before execution',
@@ -668,6 +678,7 @@ curl -X POST "https://ingest.getport.io/<YOUR_WEBHOOK_ID>" \\
             },
             {
                 id: 'webhook-action',
+                validated: 'adapt',
                 category: 'actions',
                 title: 'Webhook Action',
                 problem: 'Trigger external systems via HTTP',
@@ -701,6 +712,7 @@ curl -X POST "https://ingest.getport.io/<YOUR_WEBHOOK_ID>" \\
             // ==================== SCORECARDS ====================
             {
                 id: 'production-readiness-scorecard',
+                validated: 'production',
                 category: 'scorecards',
                 title: 'Production Readiness Scorecard',
                 problem: 'Measure if services meet production standards',
@@ -756,6 +768,7 @@ curl -X POST "https://ingest.getport.io/<YOUR_WEBHOOK_ID>" \\
             },
             {
                 id: 'time-based-rule',
+                validated: 'tested',
                 category: 'scorecards',
                 title: 'Time-Based Rule',
                 problem: 'Check if property was updated recently',
@@ -803,6 +816,7 @@ curl -X POST "https://ingest.getport.io/<YOUR_WEBHOOK_ID>" \\
             },
             {
                 id: 'mirror-property-scorecard',
+                validated: 'tested',
                 category: 'scorecards',
                 title: 'Scorecard on Mirror Property',
                 problem: 'Score based on related entity data',
@@ -849,6 +863,7 @@ curl -X POST "https://ingest.getport.io/<YOUR_WEBHOOK_ID>" \\
             // ==================== AUTOMATIONS ====================
             {
                 id: 'entity-created-trigger',
+                validated: 'production',
                 category: 'automations',
                 title: 'Entity Created Trigger',
                 problem: 'Take action when new entity appears',
@@ -877,6 +892,7 @@ curl -X POST "https://ingest.getport.io/<YOUR_WEBHOOK_ID>" \\
             },
             {
                 id: 'entity-updated-trigger',
+                validated: 'production',
                 category: 'automations',
                 title: 'Entity Updated Trigger',
                 problem: 'React to property changes',
@@ -915,10 +931,11 @@ curl -X POST "https://ingest.getport.io/<YOUR_WEBHOOK_ID>" \\
             },
             {
                 id: 'timer-cron-trigger',
+                validated: 'tested',
                 category: 'automations',
-                title: 'Timer/Cron Trigger',
-                problem: 'Run automation on schedule',
-                description: 'Time-based automation using cron expression.',
+                title: 'Timer Property Expired',
+                problem: 'Run automation when a date property passes',
+                description: 'Automation that fires when a timer/date property value is reached.',
                 code: `{
   "identifier": "daily_stale_check",
   "title": "Daily Stale Service Check",
@@ -945,6 +962,7 @@ curl -X POST "https://ingest.getport.io/<YOUR_WEBHOOK_ID>" \\
             },
             {
                 id: 'scorecard-change-trigger',
+                validated: 'tested',
                 category: 'automations',
                 title: 'Scorecard Change Trigger',
                 problem: 'React when scorecard level changes',
@@ -982,6 +1000,7 @@ curl -X POST "https://ingest.getport.io/<YOUR_WEBHOOK_ID>" \\
             // ==================== JQ ====================
             {
                 id: 'jq-default-values',
+                validated: 'production',
                 category: 'jq',
                 title: 'Default Values',
                 problem: 'Handle null/missing fields safely',
@@ -1005,6 +1024,7 @@ if .properties.count == null then 0 else .properties.count end
             },
             {
                 id: 'jq-string-manipulation',
+                validated: 'production',
                 category: 'jq',
                 title: 'String Manipulation',
                 problem: 'Transform strings in mappings',
@@ -1033,6 +1053,7 @@ if .properties.count == null then 0 else .properties.count end
             },
             {
                 id: 'jq-array-operations',
+                validated: 'production',
                 category: 'jq',
                 title: 'Array Operations',
                 problem: 'Filter and transform arrays',
@@ -1064,6 +1085,7 @@ if .properties.count == null then 0 else .properties.count end
             },
             {
                 id: 'jq-date-handling',
+                validated: 'production',
                 category: 'jq',
                 title: 'Date Handling',
                 problem: 'Work with timestamps and dates',
@@ -1090,6 +1112,7 @@ now | todateiso8601
             },
             {
                 id: 'jq-automation-conditions',
+                validated: 'tested',
                 category: 'jq',
                 title: 'Automation Conditions',
                 problem: 'Write complex automation trigger conditions',
@@ -1117,6 +1140,7 @@ now | todateiso8601
             // ==================== API ====================
             {
                 id: 'api-authentication',
+                validated: 'production',
                 category: 'api',
                 title: 'API Authentication',
                 problem: 'Get access token for Port API',
@@ -1138,11 +1162,12 @@ export TOKEN=$(curl -s -X POST "https://api.getport.io/v1/auth/access_token" \\
 # Use in requests
 curl -H "Authorization: Bearer $TOKEN" \\
   "https://api.getport.io/v1/blueprints"`,
-                output: 'Returns JWT token valid for 24 hours',
+                output: 'Returns JWT access token (refresh as needed)',
                 tags: ['api', 'auth', 'token', 'curl']
             },
             {
                 id: 'api-entity-crud',
+                validated: 'production',
                 category: 'api',
                 title: 'Entity CRUD Operations',
                 problem: 'Create, read, update, delete entities',
@@ -1176,6 +1201,7 @@ curl -X DELETE "https://api.getport.io/v1/blueprints/service/entities/my-service
             },
             {
                 id: 'api-search-entities',
+                validated: 'production',
                 category: 'api',
                 title: 'Search Entities',
                 problem: 'Query entities with filters',
@@ -1207,6 +1233,7 @@ curl -X POST "https://api.getport.io/v1/blueprints/service/entities/search" \\
             },
             {
                 id: 'api-action-run-status',
+                validated: 'production',
                 category: 'api',
                 title: 'Update Action Run Status',
                 problem: 'Report action success/failure back to Port',
@@ -1240,6 +1267,7 @@ curl -X POST "https://api.getport.io/v1/actions/runs/$PORT_RUN_ID/logs" \\
             },
             {
                 id: 'api-bulk-upsert',
+                validated: 'tested',
                 category: 'api',
                 title: 'Bulk Upsert Entities',
                 problem: 'Create/update many entities at once',
@@ -1276,6 +1304,7 @@ curl -X DELETE "https://api.getport.io/v1/blueprints/service/entities" \\
             // ==================== TROUBLESHOOTING ====================
             {
                 id: 'ts-entity-not-showing',
+                validated: 'production',
                 category: 'troubleshooting',
                 title: 'Entity Not Showing Up',
                 problem: 'Integration ran but entity not in catalog',
@@ -1304,6 +1333,7 @@ echo '{"metadata":{"name":"test"}}' | jq '.metadata.name'`,
             },
             {
                 id: 'ts-jq-returning-null',
+                validated: 'production',
                 category: 'troubleshooting',
                 title: 'JQ Returning Null',
                 problem: 'Mapping produces null values',
@@ -1338,6 +1368,7 @@ if (.value | type) == "string" then .value else (.value | tostring) end
             },
             {
                 id: 'ts-relation-not-resolving',
+                validated: 'production',
                 category: 'troubleshooting',
                 title: 'Relation Not Resolving',
                 problem: 'Relation shows unresolved or missing target',
@@ -1375,6 +1406,7 @@ relations:
             },
             {
                 id: 'ts-action-run-stuck',
+                validated: 'production',
                 category: 'troubleshooting',
                 title: 'Action Run Stuck',
                 problem: 'Action shows IN_PROGRESS forever',
@@ -1440,6 +1472,9 @@ curl -X PATCH "https://api.getport.io/v1/actions/runs/RUN_ID" \\
             } else {
                 const textarea = document.createElement('textarea');
                 textarea.value = text;
+                textarea.setAttribute('readonly', '');
+                textarea.style.position = 'absolute';
+                textarea.style.left = '-9999px';
                 document.body.appendChild(textarea);
                 textarea.select();
                 document.execCommand('copy');
@@ -1478,10 +1513,19 @@ curl -X PATCH "https://api.getport.io/v1/actions/runs/RUN_ID" \\
             status.textContent = `Showing ${filtered.length} of ${patterns.length} patterns`;
             status.style.display = 'block';
 
-            grid.innerHTML = filtered.map(p => `
+            grid.innerHTML = filtered.map(p => {
+                const badgeClass = p.validated === 'production' ? 'validation-production' : 
+                                   p.validated === 'tested' ? 'validation-tested' : 'validation-adapt';
+                const badgeIcon = p.validated === 'production' ? '✅' : 
+                                  p.validated === 'tested' ? '🧪' : '⚙️';
+                const badgeText = p.validated === 'production' ? 'Production' : 
+                                  p.validated === 'tested' ? 'Tested' : 'Adapt';
+                const categoryDisplay = p.category.charAt(0).toUpperCase() + p.category.slice(1);
+                return `
                 <div class="pattern-card" id="${p.id}">
                     <div class="card-header">
-                        <span class="card-category cat-${p.category}">${p.category}</span>
+                        <span class="card-category cat-${p.category}">${categoryDisplay}</span>
+                        <span class="validation-badge ${badgeClass}">${badgeIcon} ${badgeText}</span>
                         <div class="card-title-row">
                             <h3 class="card-title">${escapeHtml(p.title)}</h3>
                             <button class="link-btn" data-id="${p.id}" aria-label="Copy link to ${escapeHtml(p.title)} pattern" title="Copy link">🔗</button>
@@ -1508,7 +1552,7 @@ curl -X PATCH "https://api.getport.io/v1/actions/runs/RUN_ID" \\
                         ${p.tags.map(t => `<span class="tag">${escapeHtml(t)}</span>`).join('')}
                     </div>
                 </div>
-            `).join('');
+            `}).join('');
 
             // Attach copy code handlers
             grid.querySelectorAll('.copy-btn').forEach(btn => {
