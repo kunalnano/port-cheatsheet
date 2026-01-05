@@ -1,165 +1,369 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Port.io Implementation Cheat Sheet</title>
-    <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0f172a; color: #e2e8f0; line-height: 1.6; padding: 20px; }
-        .container { max-width: 1400px; margin: 0 auto; }
-        
-        header { text-align: center; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px solid #334155; }
-        h1 { font-size: 2.5rem; margin-bottom: 10px; background: linear-gradient(135deg, #60a5fa, #a78bfa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
-        .subtitle { color: #94a3b8; font-size: 1.1rem; }
-        .version { color: #64748b; font-size: 0.85rem; margin-top: 8px; }
-        
-        .header-actions { display: flex; gap: 12px; justify-content: center; margin-top: 15px; flex-wrap: wrap; }
-        .header-btn { background: #1e293b; border: 1px solid #334155; color: #e2e8f0; padding: 8px 16px; border-radius: 6px; cursor: pointer; text-decoration: none; font-size: 0.9rem; transition: all 0.2s; }
-        .header-btn:hover { background: #334155; border-color: #475569; }
-        .header-btn:focus { outline: 2px solid #60a5fa; outline-offset: 2px; }
-        
-        .notice-box { background: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 12px 16px; margin-bottom: 20px; font-size: 0.9rem; }
-        .notice-box code { background: #334155; padding: 2px 6px; border-radius: 4px; font-family: 'SF Mono', Monaco, monospace; font-size: 0.85em; }
-        
-        .controls { display: flex; flex-direction: column; gap: 15px; margin-bottom: 25px; }
-        .search-box { width: 100%; padding: 12px 16px; font-size: 1rem; border: 2px solid #334155; border-radius: 8px; background: #1e293b; color: #e2e8f0; transition: border-color 0.2s; }
-        .search-box:focus { outline: none; border-color: #60a5fa; }
-        .search-box::placeholder { color: #64748b; }
-        
-        .category-filters { display: flex; flex-wrap: wrap; gap: 8px; }
-        .category-btn { padding: 8px 16px; border: 1px solid #334155; border-radius: 20px; background: #1e293b; color: #94a3b8; cursor: pointer; transition: all 0.2s; font-size: 0.9rem; }
-        .category-btn:hover { border-color: #60a5fa; color: #60a5fa; }
-        .category-btn:focus { outline: 2px solid #60a5fa; outline-offset: 2px; }
-        .category-btn.active { background: #60a5fa; color: #0f172a; border-color: #60a5fa; }
-        
-        .status { text-align: center; color: #64748b; padding: 10px; font-size: 0.9rem; }
-        
-        .pattern-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(400px, 1fr)); gap: 20px; }
-        
-        .pattern-card { background: #1e293b; border: 1px solid #334155; border-radius: 12px; overflow: hidden; transition: all 0.2s; scroll-margin-top: 20px; }
-        .pattern-card:hover { border-color: #475569; transform: translateY(-2px); box-shadow: 0 8px 25px rgba(0,0,0,0.3); }
-        .pattern-card:target { border-color: #60a5fa; box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.3); }
-        
-        .card-header { padding: 16px; border-bottom: 1px solid #334155; position: relative; }
-        .card-meta-row { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }
-        .card-category { display: inline-block; padding: 4px 10px; border-radius: 12px; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; }
-        .card-title-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
-        .card-title { font-size: 1.1rem; font-weight: 600; color: #f1f5f9; margin-bottom: 6px; flex: 1; }
-        .link-btn { background: transparent; border: 1px solid #475569; color: #64748b; width: 28px; height: 28px; border-radius: 4px; cursor: pointer; font-size: 0.8rem; transition: all 0.2s; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
-        .link-btn:hover { border-color: #60a5fa; color: #60a5fa; background: rgba(96, 165, 250, 0.1); }
-        .link-btn:focus { outline: 2px solid #60a5fa; outline-offset: 2px; }
-        .link-btn.copied { border-color: #22c55e; color: #22c55e; }
-        .card-problem { font-size: 0.85rem; color: #f59e0b; margin-bottom: 6px; }
-        .card-description { font-size: 0.9rem; color: #94a3b8; }
-        
-        .card-body { padding: 16px; }
-        .code-block { background: #0f172a; border-radius: 8px; overflow: hidden; margin-bottom: 12px; }
-        .code-header { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; background: #1a2332; border-bottom: 1px solid #334155; }
-        .code-label { font-size: 0.75rem; color: #64748b; text-transform: uppercase; }
-        .copy-btn { background: #334155; border: none; color: #e2e8f0; padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 0.8rem; transition: all 0.2s; }
-        .copy-btn:hover { background: #475569; }
-        .copy-btn:focus { outline: 2px solid #60a5fa; outline-offset: 2px; }
-        .copy-btn.copied { background: #22c55e; }
-        pre { margin: 0; padding: 12px; overflow-x: auto; font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace; font-size: 0.85rem; line-height: 1.5; color: #e2e8f0; white-space: pre-wrap; word-wrap: break-word; }
-        
-        .output-block { background: #0c1222; border: 1px dashed #334155; border-radius: 6px; padding: 10px; margin-top: 10px; }
-        .output-label { font-size: 0.7rem; color: #64748b; text-transform: uppercase; margin-bottom: 6px; }
-        .output-content { font-family: 'SF Mono', Monaco, monospace; font-size: 0.8rem; color: #94a3b8; white-space: pre-wrap; }
-        
-        .card-tags { padding: 12px 16px; border-top: 1px solid #334155; display: flex; flex-wrap: wrap; gap: 6px; }
-        .tag { background: #334155; color: #94a3b8; padding: 3px 8px; border-radius: 4px; font-size: 0.75rem; }
-        
-        .cat-blueprints { background: #3b82f6; color: white; }
-        .cat-mapping { background: #8b5cf6; color: white; }
-        .cat-actions { background: #22c55e; color: white; }
-        .cat-scorecards { background: #f59e0b; color: black; }
-        .cat-automations { background: #ef4444; color: white; }
-        .cat-jq { background: #06b6d4; color: black; }
-        .cat-api { background: #ec4899; color: white; }
-        .cat-troubleshooting { background: #f97316; color: white; }
-        
-        .validation-badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: 500; }
-        .validation-production { background: rgba(34, 197, 94, 0.15); color: #22c55e; border: 1px solid rgba(34, 197, 94, 0.3); }
-        .validation-tested { background: rgba(59, 130, 246, 0.15); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.3); }
-        .validation-adapt { background: rgba(251, 191, 36, 0.15); color: #fbbf24; border: 1px solid rgba(251, 191, 36, 0.3); }
-        
-        .trust-footer { background: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 16px; margin-top: 30px; font-size: 0.85rem; }
-        .trust-footer-title { font-weight: 600; color: #f1f5f9; margin-bottom: 10px; }
-        .trust-legend { display: flex; flex-wrap: wrap; gap: 16px; color: #94a3b8; }
-        .trust-item { display: flex; align-items: center; gap: 6px; }
-        
-        .footer { text-align: center; margin-top: 40px; padding: 20px; color: #64748b; border-top: 1px solid #334155; }
-        .footer a { color: #60a5fa; text-decoration: none; }
-        .footer a:hover { text-decoration: underline; }
-        
-        @media (max-width: 600px) {
-            .pattern-grid { grid-template-columns: 1fr; }
-            h1 { font-size: 1.8rem; }
-            .header-actions { flex-direction: column; }
-        }
-        
-        @media print {
-            body { background: white; color: black; }
-            .controls, .header-actions, .copy-btn, .link-btn, .status { display: none; }
-            .pattern-card { break-inside: avoid; page-break-inside: avoid; border: 1px solid #ccc; margin-bottom: 15px; }
-            .code-block { background: #f5f5f5; }
-            pre { color: black; }
-            .card-category { border: 1px solid currentColor; }
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Port.io Implementation Cheat Sheet</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #0f172a;
+      color: #e2e8f0;
+      line-height: 1.6;
+      padding: 20px;
+    }
+    .container { max-width: 1400px; margin: 0 auto; }
+
+    header { text-align: center; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px solid #334155; }
+    h1 {
+      font-size: 2.5rem;
+      margin-bottom: 10px;
+      background: linear-gradient(135deg, #60a5fa, #a78bfa);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .subtitle { color: #94a3b8; font-size: 1.1rem; }
+    .version { color: #64748b; font-size: 0.85rem; margin-top: 8px; }
+
+    .header-actions { display: flex; gap: 12px; justify-content: center; margin-top: 15px; flex-wrap: wrap; }
+    .header-btn {
+      background: #1e293b;
+      border: 1px solid #334155;
+      color: #e2e8f0;
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      text-decoration: none;
+      font-size: 0.9rem;
+      transition: all 0.2s;
+    }
+    .header-btn:hover { background: #334155; border-color: #475569; }
+    .header-btn:focus { outline: 2px solid #60a5fa; outline-offset: 2px; }
+
+    .notice-box {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 8px;
+      padding: 12px 16px;
+      margin-bottom: 20px;
+      font-size: 0.9rem;
+    }
+    .notice-box code {
+      background: #334155;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: 'SF Mono', Monaco, monospace;
+      font-size: 0.85em;
+    }
+
+    .controls { display: flex; flex-direction: column; gap: 12px; margin-bottom: 25px; }
+    .controls-row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+    .search-box {
+      width: 100%;
+      padding: 12px 16px;
+      font-size: 1rem;
+      border: 2px solid #334155;
+      border-radius: 8px;
+      background: #1e293b;
+      color: #e2e8f0;
+      transition: border-color 0.2s;
+    }
+    .search-box:focus { outline: none; border-color: #60a5fa; }
+    .search-box::placeholder { color: #64748b; }
+
+    .toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 8px;
+      border: 1px solid #334155;
+      background: #1e293b;
+      color: #94a3b8;
+      font-size: 0.9rem;
+      user-select: none;
+      cursor: pointer;
+    }
+    .toggle input { accent-color: #60a5fa; }
+
+    .category-filters { display: flex; flex-wrap: wrap; gap: 8px; }
+    .category-filters[role="tablist"] { align-items: center; }
+    .category-btn {
+      padding: 8px 16px;
+      border: 1px solid #334155;
+      border-radius: 20px;
+      background: #1e293b;
+      color: #94a3b8;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 0.9rem;
+    }
+    .category-btn:hover { border-color: #60a5fa; color: #60a5fa; }
+    .category-btn:focus { outline: 2px solid #60a5fa; outline-offset: 2px; }
+    .category-btn.active, .category-btn[aria-selected="true"] {
+      background: #60a5fa;
+      color: #0f172a;
+      border-color: #60a5fa;
+    }
+
+    .status {
+      text-align: center;
+      color: #94a3b8;
+      padding: 10px;
+      font-size: 0.9rem;
+      min-height: 1.2em;
+    }
+    .status-hint { color: #64748b; font-size: 0.85rem; text-align: center; margin-top: -6px; }
+
+    .pattern-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(400px, 1fr)); gap: 20px; }
+
+    .pattern-card {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 12px;
+      overflow: hidden;
+      transition: all 0.2s;
+      scroll-margin-top: 20px;
+    }
+    .pattern-card:hover {
+      border-color: #475569;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+    }
+    .pattern-card:target { border-color: #60a5fa; box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.3); }
+
+    .pattern-card:focus {
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(96,165,250,0.45);
+      border-color: #60a5fa;
+    }
+    .pattern-card:focus-visible {
+      box-shadow: 0 0 0 3px rgba(96,165,250,0.65);
+    }
+
+    .card-header { padding: 16px; border-bottom: 1px solid #334155; position: relative; }
+    .card-meta-row { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; flex-wrap: wrap; }
+    .card-category { display: inline-block; padding: 4px 10px; border-radius: 12px; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; }
+    .card-title-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+    .card-title { font-size: 1.1rem; font-weight: 600; color: #f1f5f9; margin-bottom: 6px; flex: 1; }
+    .link-btn {
+      background: transparent;
+      border: 1px solid #475569;
+      color: #64748b;
+      min-width: 56px;
+      height: 28px;
+      padding: 0 8px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.8rem;
+      transition: all 0.2s;
+      flex-shrink: 0;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+    .link-btn:hover { border-color: #60a5fa; color: #60a5fa; background: rgba(96,165,250,0.1); }
+    .link-btn:focus { outline: 2px solid #60a5fa; outline-offset: 2px; }
+    .link-btn.copied { border-color: #22c55e; color: #22c55e; }
+    .card-problem { font-size: 0.85rem; color: #f59e0b; margin-bottom: 6px; }
+    .card-description { font-size: 0.9rem; color: #94a3b8; }
+
+    .card-body { padding: 16px; }
+    .code-block { background: #0f172a; border-radius: 8px; overflow: hidden; margin-bottom: 12px; }
+    .code-header {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 8px 12px; background: #1a2332; border-bottom: 1px solid #334155;
+    }
+    .code-label { font-size: 0.75rem; color: #64748b; text-transform: uppercase; }
+    .copy-btn {
+      background: #334155;
+      border: none;
+      color: #e2e8f0;
+      padding: 4px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.8rem;
+      transition: all 0.2s;
+    }
+    .copy-btn:hover { background: #475569; }
+    .copy-btn:focus { outline: 2px solid #60a5fa; outline-offset: 2px; }
+    .copy-btn.copied { background: #22c55e; }
+    pre {
+      margin: 0;
+      padding: 12px;
+      overflow-x: auto;
+      font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace;
+      font-size: 0.85rem;
+      line-height: 1.5;
+      color: #e2e8f0;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+
+    .output-block { background: #0c1222; border: 1px dashed #334155; border-radius: 6px; padding: 10px; margin-top: 10px; }
+    .output-label { font-size: 0.7rem; color: #64748b; text-transform: uppercase; margin-bottom: 6px; }
+    .output-content { font-family: 'SF Mono', Monaco, monospace; font-size: 0.8rem; color: #94a3b8; white-space: pre-wrap; }
+
+    .card-tags { padding: 12px 16px; border-top: 1px solid #334155; display: flex; flex-wrap: wrap; gap: 6px; }
+    .tag { background: #334155; color: #94a3b8; padding: 3px 8px; border-radius: 4px; font-size: 0.75rem; }
+
+    .cat-blueprints { background: #3b82f6; color: white; }
+    .cat-mapping { background: #8b5cf6; color: white; }
+    .cat-actions { background: #22c55e; color: white; }
+    .cat-scorecards { background: #f59e0b; color: black; }
+    .cat-automations { background: #ef4444; color: white; }
+    .cat-jq { background: #06b6d4; color: black; }
+    .cat-api { background: #ec4899; color: white; }
+    .cat-troubleshooting { background: #f97316; color: white; }
+
+    .validation-badge {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 3px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: 500;
+    }
+    .validation-production { background: rgba(34,197,94,0.15); color: #22c55e; border: 1px solid rgba(34,197,94,0.3); }
+    .validation-tested { background: rgba(59,130,246,0.15); color: #60a5fa; border: 1px solid rgba(59,130,246,0.3); }
+    .validation-adapt { background: rgba(251,191,36,0.15); color: #fbbf24; border: 1px solid rgba(251,191,36,0.3); }
+
+    .trust-footer {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 8px;
+      padding: 16px;
+      margin-top: 30px;
+      font-size: 0.85rem;
+    }
+    .trust-footer-title { font-weight: 600; color: #f1f5f9; margin-bottom: 10px; }
+    .trust-legend { display: flex; flex-wrap: wrap; gap: 16px; color: #94a3b8; }
+    .trust-item { display: flex; align-items: center; gap: 6px; }
+
+    .footer { text-align: center; margin-top: 40px; padding: 20px; color: #64748b; border-top: 1px solid #334155; }
+    .footer a { color: #60a5fa; text-decoration: none; }
+    .footer a:hover { text-decoration: underline; }
+
+    @media (max-width: 600px) {
+      .pattern-grid { grid-template-columns: 1fr; }
+      h1 { font-size: 1.8rem; }
+      .header-actions { flex-direction: column; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .pattern-card { transition: none; }
+      .pattern-card:hover { transform: none; }
+    }
+
+    @media print {
+      body { background: white; color: black; padding: 10mm; }
+      .controls, .header-actions, .copy-btn, .link-btn, .status-hint { display: none !important; }
+      .pattern-card { break-inside: avoid; page-break-inside: avoid; border: 1px solid #ccc; margin-bottom: 12px; }
+      .code-block { background: #f5f5f5; }
+      pre { color: black; white-space: pre-wrap; }
+      .card-category { border: 1px solid currentColor; }
+      a[href]::after { content: " (" attr(href) ")"; font-size: 0.75em; color: #666; }
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>🚀 Port.io Implementation Cheat Sheet</h1>
-            <p class="subtitle">Copy-paste patterns for blueprints, mappings, actions, and automations</p>
-            <p class="version">Last updated: January 5, 2026 • v2.6</p>
-            <div class="header-actions">
-                <button type="button" class="header-btn" onclick="window.print()" aria-label="Print this page or save as PDF">🖨️ Print / Save PDF</button>
-                <a href="https://docs.port.io" target="_blank" rel="noopener noreferrer" class="header-btn" aria-label="Open Port.io documentation">📚 Full Docs</a>
-            </div>
-        </header>
-        
-        <div class="notice-box">
-            <strong>📝 Placeholders:</strong> Replace <code>&lt;YOUR_ORG&gt;</code>, <code>&lt;YOUR_REPO&gt;</code>, <code>&lt;YOUR_DOMAIN&gt;</code>, <code>$PORT_CLIENT_ID</code>, <code>$PORT_CLIENT_SECRET</code>, <code>$TOKEN</code>, and webhook URLs with your actual values.<br>
-            <strong>API Region:</strong> US → <code>api.getport.io</code> | EU → <code>api.eu.getport.io</code>
-        </div>
+  <a href="#patternGrid" class="skip-link" 
+     onfocus="this.classList.add('visible')" 
+     onblur="this.classList.remove('visible')">
+    Skip to results
+  </a>
+  <style>
+    .skip-link {
+      position: absolute;
+      left: -9999px;
+      top: auto;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      z-index: 1000;
+      text-decoration: none;
+    }
+    .skip-link.visible {
+      left: 20px;
+      top: 20px;
+      width: auto;
+      height: auto;
+      padding: 8px 12px;
+      background: #1e293b;
+      border: 1px solid #60a5fa;
+      border-radius: 8px;
+      color: #e2e8f0;
+    }
+  </style>
+  <div class="container">
+    <header>
+      <h1>🚀 Port.io Implementation Cheat Sheet</h1>
+      <p class="subtitle">Copy-paste patterns for blueprints, mappings, actions, and automations</p>
+      <p class="version">Last updated: January 5, 2026 • v2.10</p>
+      <div class="header-actions">
+        <button type="button" class="header-btn" onclick="window.print()" aria-label="Print this page or save as PDF">🖨️ Print / Save PDF</button>
+        <a href="https://docs.port.io" target="_blank" rel="noopener noreferrer" class="header-btn" aria-label="Open Port.io documentation">📚 Full Docs</a>
+      </div>
+    </header>
 
-        <div class="controls">
-            <input type="text" class="search-box" id="searchBox" placeholder="Search patterns (e.g., 'kubernetes', 'jq time', 'webhook')..." aria-label="Search patterns">
-            <div class="category-filters" role="group" aria-label="Filter by category">
-                <button type="button" class="category-btn active" data-category="all">All</button>
-                <button type="button" class="category-btn" data-category="blueprints">Blueprints</button>
-                <button type="button" class="category-btn" data-category="mapping">Mapping</button>
-                <button type="button" class="category-btn" data-category="actions">Actions</button>
-                <button type="button" class="category-btn" data-category="scorecards">Scorecards</button>
-                <button type="button" class="category-btn" data-category="automations">Automations</button>
-                <button type="button" class="category-btn" data-category="jq">JQ</button>
-                <button type="button" class="category-btn" data-category="api">API</button>
-                <button type="button" class="category-btn" data-category="troubleshooting">Troubleshooting</button>
-            </div>
-        </div>
-
-        <div class="status" id="status" aria-live="polite"></div>
-        <div class="pattern-grid" id="patternGrid"></div>
-
-        <div class="trust-footer">
-            <div class="trust-footer-title">🛡️ Pattern Validation</div>
-            <div class="trust-legend">
-                <span class="trust-item"><span class="validation-badge validation-production">✅ Production</span> Used in real Port implementations</span>
-                <span class="trust-item"><span class="validation-badge validation-tested">🧪 Tested</span> Verified in demo environments</span>
-                <span class="trust-item"><span class="validation-badge validation-adapt">⚙️ Adapt</span> Adjust field names to your blueprints</span>
-            </div>
-            <p style="margin-top: 12px; color: #64748b;">Patterns are validated conceptually and used in real Port implementations. Exact field names, blueprint identifiers, and schemas may require adaptation to your organization.</p>
-        </div>
-
-        <div class="footer">
-            💡 Click copy to grab snippets • Use 🔗 to share specific patterns • <a href="https://docs.port.io" target="_blank" rel="noopener noreferrer">docs.port.io</a> for full documentation
-        </div>
+    <div class="notice-box">
+      <strong>📝 Placeholders:</strong> Replace <code>&lt;YOUR_ORG&gt;</code>, <code>&lt;YOUR_REPO&gt;</code>, <code>&lt;YOUR_DOMAIN&gt;</code>,
+      <code>$PORT_CLIENT_ID</code>, <code>$PORT_CLIENT_SECRET</code>, <code>$TOKEN</code>, and webhook URLs with your actual values.<br />
+      <strong>API Region:</strong> US → <code>api.getport.io</code> | EU → <code>api.eu.getport.io</code>
     </div>
 
-    <script>
+    <div class="controls" aria-label="Pattern controls">
+      <div class="controls-row">
+        <input type="text" class="search-box" id="searchBox"
+               placeholder="Search patterns (press / to focus, Esc to clear)…"
+               aria-label="Search patterns" />
+      </div>
+
+      <div class="controls-row">
+        <label class="toggle" for="searchInCode">
+          <input type="checkbox" id="searchInCode" />
+          Search inside code (slower)
+        </label>
+      </div>
+
+      <div class="category-filters" role="tablist" aria-label="Filter by category">
+        <button type="button" class="category-btn active" role="tab" aria-selected="true" data-category="all">All</button>
+        <button type="button" class="category-btn" role="tab" aria-selected="false" data-category="blueprints">Blueprints</button>
+        <button type="button" class="category-btn" role="tab" aria-selected="false" data-category="mapping">Mapping</button>
+        <button type="button" class="category-btn" role="tab" aria-selected="false" data-category="actions">Actions</button>
+        <button type="button" class="category-btn" role="tab" aria-selected="false" data-category="scorecards">Scorecards</button>
+        <button type="button" class="category-btn" role="tab" aria-selected="false" data-category="automations">Automations</button>
+        <button type="button" class="category-btn" role="tab" aria-selected="false" data-category="jq">JQ</button>
+        <button type="button" class="category-btn" role="tab" aria-selected="false" data-category="api">API</button>
+        <button type="button" class="category-btn" role="tab" aria-selected="false" data-category="troubleshooting">Troubleshooting</button>
+      </div>
+    </div>
+
+    <div class="status" id="status" aria-live="polite" aria-atomic="true"></div>
+    <div class="status-hint">Tip: Press <code>/</code> to search, <code>Enter</code> to jump to first result.</div>
+
+    <div class="pattern-grid" id="patternGrid" role="list"></div>
+
+    <div class="trust-footer">
+      <div class="trust-footer-title">🛡️ Pattern Validation</div>
+      <div class="trust-legend">
+        <span class="trust-item"><span class="validation-badge validation-production">✅ Production</span> Used in real Port implementations</span>
+        <span class="trust-item"><span class="validation-badge validation-tested">🧪 Tested</span> Verified in demo environments</span>
+        <span class="trust-item"><span class="validation-badge validation-adapt">⚙️ Adapt</span> Adjust field names to your blueprints</span>
+      </div>
+      <p style="margin-top: 12px; color: #64748b;">
+        Patterns are validated conceptually and used in real Port implementations. Exact field names, blueprint identifiers, and schemas may require adaptation.
+      </p>
+    </div>
+
+    <div class="footer">
+      💡 Click copy to grab snippets • Use 🔗 to share specific patterns • <a href="https://docs.port.io" target="_blank" rel="noopener noreferrer">docs.port.io</a> for full documentation
+    </div>
+  </div>
+
+  <script>
+    // =========================
+    // Data
+    // =========================
         const patterns = [
             // ==================== BLUEPRINTS ====================
             {
@@ -1438,203 +1642,331 @@ curl -X PATCH "https://api.getport.io/v1/actions/runs/RUN_ID" \\
             }
         ];
 
-        // Precompute search blobs for faster filtering
-        patterns.forEach(p => {
-            p._search = [
-                p.title,
-                p.problem || '',
-                p.description,
-                p.code,
-                p.output || '',
-                p.tags.join(' ')
-            ].join(' ').toLowerCase();
-        });
+    // =========================
+    // Search indexing
+    // =========================
+    let includeCodeInSearch = false;
 
-        let activeCategory = 'all';
-        let searchTerm = '';
-        let debounceTimer = null;
+    function buildSearchBlob(p) {
+      const base = [
+        p.title || '',
+        p.problem || '',
+        p.description || '',
+        p.output || '',
+        (p.tags || []).join(' ')
+      ].join(' ').toLowerCase();
 
-        function escapeHtml(text) {
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
+      if (!includeCodeInSearch) return base;
+      return (base + ' ' + (p.code || '')).toLowerCase();
+    }
+
+    function rebuildIndexes() {
+      patterns.forEach(p => {
+        p.tags = p.tags || [];
+        p._search = buildSearchBlob(p);
+      });
+    }
+
+    rebuildIndexes();
+
+    // =========================
+    // State
+    // =========================
+    let activeCategory = 'all';
+    let searchTerm = '';
+    let debounceTimer = null;
+    let lastAnnouncedStatus = '';
+
+    const prefersReducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    // Faster escapeHtml (reuse node)
+    const _esc = document.createElement('div');
+    function escapeHtml(text) {
+      _esc.textContent = String(text ?? '');
+      return _esc.innerHTML;
+    }
+
+    function copyToClipboard(text, btn, successText, originalText, useHTML = false) {
+      const showSuccess = () => {
+        if (useHTML) btn.innerHTML = successText;
+        else btn.textContent = successText;
+        btn.classList.add('copied');
+        setTimeout(() => {
+          if (useHTML) btn.innerHTML = originalText;
+          else btn.textContent = originalText;
+          btn.classList.remove('copied');
+        }, 1400);
+      };
+      const showError = () => {
+        btn.classList.remove('copied');
+        btn.textContent = 'Failed';
+        setTimeout(() => {
+          if (useHTML) btn.innerHTML = originalText;
+          else btn.textContent = originalText;
+        }, 1400);
+      };
+
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(showSuccess).catch(showError);
+      } else {
+        let textarea;
+        try {
+          textarea = document.createElement('textarea');
+          textarea.value = text;
+          textarea.setAttribute('readonly', '');
+          textarea.style.position = 'absolute';
+          textarea.style.left = '-9999px';
+          document.body.appendChild(textarea);
+          textarea.select();
+          textarea.setSelectionRange(0, textarea.value.length);
+          const success = document.execCommand('copy');
+          success ? showSuccess() : showError();
+        } catch (e) {
+          showError();
+        } finally {
+          if (textarea && textarea.parentNode) textarea.parentNode.removeChild(textarea);
+        }
+      }
+    }
+
+    function filterPatterns() {
+      const term = searchTerm.toLowerCase().trim();
+      return patterns.filter(p => {
+        const categoryMatch = activeCategory === 'all' || p.category === activeCategory;
+        if (!categoryMatch) return false;
+        if (!term) return true;
+        return p._search.includes(term);
+      });
+    }
+
+    function setStatus(text, { announce = true } = {}) {
+      const status = document.getElementById('status');
+      status.textContent = text;
+      if (!announce) return;
+      if (text === lastAnnouncedStatus) return;
+      lastAnnouncedStatus = text;
+    }
+
+    function renderPatterns({ announceStatus = false } = {}) {
+      const grid = document.getElementById('patternGrid');
+      const filtered = filterPatterns();
+
+      if (filtered.length === 0) {
+        grid.innerHTML = '';
+        setStatus('No patterns found. Try a different search or category.', { announce: announceStatus });
+        return;
+      }
+
+      setStatus(`Showing ${filtered.length} of ${patterns.length} patterns`, { announce: announceStatus });
+
+      grid.innerHTML = filtered.map(p => {
+        const validValues = ['production', 'tested', 'adapt'];
+        let validation = p.validated;
+        if (!validValues.includes(validation)) {
+          console.warn(`Unknown validation "${p.validated}" for ${p.id}`);
+          validation = 'adapt';
         }
 
-        function copyToClipboard(text, btn, successText = 'Copied!', originalText = 'Copy') {
-            if (navigator.clipboard && navigator.clipboard.writeText) {
-                navigator.clipboard.writeText(text).then(() => {
-                    btn.textContent = successText;
-                    btn.classList.add('copied');
-                    setTimeout(() => {
-                        btn.textContent = originalText;
-                        btn.classList.remove('copied');
-                    }, 2000);
-                });
-            } else {
-                const textarea = document.createElement('textarea');
-                textarea.value = text;
-                textarea.setAttribute('readonly', '');
-                textarea.style.position = 'absolute';
-                textarea.style.left = '-9999px';
-                document.body.appendChild(textarea);
-                textarea.select();
-                textarea.setSelectionRange(0, textarea.value.length);
-                document.execCommand('copy');
-                document.body.removeChild(textarea);
-                btn.textContent = successText;
-                btn.classList.add('copied');
-                setTimeout(() => {
-                    btn.textContent = originalText;
-                    btn.classList.remove('copied');
-                }, 2000);
-            }
-        }
+        const badgeClass = validation === 'production' ? 'validation-production'
+          : validation === 'tested' ? 'validation-tested' : 'validation-adapt';
+        const badgeIcon = validation === 'production' ? '✅' : validation === 'tested' ? '🧪' : '⚙️';
+        const badgeText = validation === 'production' ? 'Production' : validation === 'tested' ? 'Tested' : 'Adapt';
+        const categoryDisplay = p.category === 'jq' ? 'JQ' : p.category.charAt(0).toUpperCase() + p.category.slice(1);
 
-        function filterPatterns() {
-            const term = searchTerm.toLowerCase().trim();
-            return patterns.filter(p => {
-                const categoryMatch = activeCategory === 'all' || p.category === activeCategory;
-                if (!categoryMatch) return false;
-                if (!term) return true;
-                return p._search.includes(term);
-            });
-        }
-
-        function renderPatterns() {
-            const grid = document.getElementById('patternGrid');
-            const status = document.getElementById('status');
-            const filtered = filterPatterns();
-
-            if (filtered.length === 0) {
-                grid.innerHTML = '';
-                status.textContent = 'No patterns found. Try a different search or category.';
-                status.style.display = 'block';
-                return;
-            }
-
-            status.textContent = `Showing ${filtered.length} of ${patterns.length} patterns`;
-            status.style.display = 'block';
-
-            grid.innerHTML = filtered.map(p => {
-                const validValues = ['production', 'tested', 'adapt'];
-                let validation = p.validated;
-                if (!validValues.includes(validation)) {
-                    console.warn(`Unknown validation "${p.validated}" for ${p.id}`);
-                    validation = 'adapt';
-                }
-                const badgeClass = validation === 'production' ? 'validation-production' : 
-                                   validation === 'tested' ? 'validation-tested' : 'validation-adapt';
-                const badgeIcon = validation === 'production' ? '✅' : 
-                                  validation === 'tested' ? '🧪' : '⚙️';
-                const badgeText = validation === 'production' ? 'Production' : 
-                                  validation === 'tested' ? 'Tested' : 'Adapt';
-                const categoryDisplay = p.category === 'jq' ? 'JQ' : 
-                                        p.category.charAt(0).toUpperCase() + p.category.slice(1);
-                return `
-                <div class="pattern-card" id="${p.id}" tabindex="-1">
-                    <div class="card-header">
-                        <div class="card-meta-row">
-                            <span class="card-category cat-${p.category}">${categoryDisplay}</span>
-                            <span class="validation-badge ${badgeClass}">${badgeIcon} ${badgeText}</span>
-                        </div>
-                        <div class="card-title-row">
-                            <h3 class="card-title">${escapeHtml(p.title)}</h3>
-                            <button type="button" class="link-btn" data-id="${p.id}" aria-label="Copy link to ${escapeHtml(p.title)} pattern" title="Copy link">🔗</button>
-                        </div>
-                        ${p.problem ? `<p class="card-problem">💡 ${escapeHtml(p.problem)}</p>` : ''}
-                        <p class="card-description">${escapeHtml(p.description)}</p>
-                    </div>
-                    <div class="card-body">
-                        <div class="code-block">
-                            <div class="code-header">
-                                <span class="code-label">Code</span>
-                                <button type="button" class="copy-btn" data-id="${p.id}" aria-label="Copy ${escapeHtml(p.title)} code snippet">Copy</button>
-                            </div>
-                            <pre>${escapeHtml(p.code)}</pre>
-                        </div>
-                        ${p.output ? `
-                        <div class="output-block">
-                            <div class="output-label">Output / Notes</div>
-                            <div class="output-content">${escapeHtml(p.output)}</div>
-                        </div>
-                        ` : ''}
-                    </div>
-                    <div class="card-tags">
-                        ${p.tags.map(t => `<span class="tag">${escapeHtml(t)}</span>`).join('')}
-                    </div>
+        return `
+          <article class="pattern-card" id="${p.id}" tabindex="0" role="listitem" aria-label="${escapeHtml(p.title)}">
+            <div class="card-header">
+              <div class="card-meta-row">
+                <span class="card-category cat-${p.category}">${categoryDisplay}</span>
+                <span class="validation-badge ${badgeClass}">${badgeIcon} ${badgeText}</span>
+              </div>
+              <div class="card-title-row">
+                <h3 class="card-title">${escapeHtml(p.title)}</h3>
+                <button type="button" class="link-btn" data-id="${p.id}"
+                        aria-label="Copy link to ${escapeHtml(p.title)} pattern" title="Copy link">
+                  <span aria-hidden="true">🔗</span> Link
+                </button>
+              </div>
+              ${p.problem ? `<p class="card-problem">💡 ${escapeHtml(p.problem)}</p>` : ''}
+              <p class="card-description">${escapeHtml(p.description)}</p>
+            </div>
+            <div class="card-body">
+              <div class="code-block">
+                <div class="code-header">
+                  <span class="code-label">Code</span>
+                  <button type="button" class="copy-btn" data-id="${p.id}" aria-label="Copy ${escapeHtml(p.title)} code snippet">Copy</button>
                 </div>
-            `}).join('');
+                <pre>${escapeHtml(p.code)}</pre>
+              </div>
+              ${p.output ? `
+                <div class="output-block">
+                  <div class="output-label">Output / Notes</div>
+                  <div class="output-content">${escapeHtml(p.output)}</div>
+                </div>
+              ` : ''}
+            </div>
+            <div class="card-tags">
+              ${(p.tags || []).map(t => `<span class="tag">${escapeHtml(t)}</span>`).join('')}
+            </div>
+          </article>
+        `;
+      }).join('');
+    }
 
-            // Attach copy code handlers
-            grid.querySelectorAll('.copy-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const patternId = this.getAttribute('data-id');
-                    const pattern = patterns.find(p => p.id === patternId);
-                    if (pattern) {
-                        copyToClipboard(pattern.code, this, 'Copied!', 'Copy');
-                    }
-                });
-            });
+    // =========================
+    // Events
+    // =========================
 
-            // Attach copy link handlers
-            grid.querySelectorAll('.link-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const patternId = this.getAttribute('data-id');
-                    const url = `${window.location.origin}${window.location.pathname}#${patternId}`;
-                    copyToClipboard(url, this, '✓', '🔗');
-                });
-            });
+    // Copy/link actions via delegation
+    document.getElementById('patternGrid').addEventListener('click', (e) => {
+      const copyBtn = e.target.closest('.copy-btn');
+      const linkBtn = e.target.closest('.link-btn');
+
+      if (copyBtn) {
+        const patternId = copyBtn.getAttribute('data-id');
+        const pattern = patterns.find(p => p.id === patternId);
+        if (pattern) copyToClipboard(pattern.code, copyBtn, 'Copied!', 'Copy');
+      }
+
+      if (linkBtn) {
+        const patternId = linkBtn.getAttribute('data-id');
+        const url = `${window.location.origin}${window.location.pathname}${window.location.search}#${patternId}`;
+        copyToClipboard(url, linkBtn, '✓ Copied', '<span aria-hidden="true">🔗</span> Link', true);
+      }
+    });
+
+    // Search debounce
+    document.getElementById('searchBox').addEventListener('input', (e) => {
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(() => {
+        searchTerm = e.target.value;
+        renderPatterns({ announceStatus: true });
+      }, 350);
+    });
+
+    // Search in code toggle
+    document.getElementById('searchInCode').addEventListener('change', (e) => {
+      includeCodeInSearch = !!e.target.checked;
+      rebuildIndexes();
+      renderPatterns({ announceStatus: true });
+    });
+
+    // Tabs: ARIA tablist with proper keyboard behavior
+    const tablist = document.querySelector('.category-filters[role="tablist"]');
+    const tabButtons = Array.from(tablist.querySelectorAll('.category-btn[role="tab"]'));
+
+    function updateTabsUI(activeCat) {
+      tabButtons.forEach(btn => {
+        const isActive = btn.dataset.category === activeCat;
+        btn.classList.toggle('active', isActive);
+        btn.setAttribute('aria-selected', isActive ? 'true' : 'false');
+        btn.tabIndex = isActive ? 0 : -1;
+      });
+    }
+
+    function setActiveCategory(cat, { render = true } = {}) {
+      activeCategory = cat;
+      updateTabsUI(cat);
+      if (render) renderPatterns({ announceStatus: true });
+    }
+
+    tabButtons.forEach(btn => {
+      btn.addEventListener('click', () => setActiveCategory(btn.dataset.category));
+      btn.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          setActiveCategory(btn.dataset.category);
         }
+      });
+    });
 
-        // Debounced search
-        document.getElementById('searchBox').addEventListener('input', (e) => {
-            clearTimeout(debounceTimer);
-            debounceTimer = setTimeout(() => {
-                searchTerm = e.target.value;
-                renderPatterns();
-            }, 150);
-        });
+    // Tabs: arrow keys move focus only (Enter/Space activates)
+    tablist.addEventListener('keydown', (e) => {
+      const currentIndex = tabButtons.findIndex(b => b.getAttribute('aria-selected') === 'true');
+      if (currentIndex < 0) return;
 
-        // Category filters
-        document.querySelectorAll('.category-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                activeCategory = btn.dataset.category;
-                renderPatterns();
-            });
-        });
+      let nextIndex = currentIndex;
 
-        // Handle deep links on page load
-        function handleDeepLink() {
-            if (!window.location.hash) return;
-            const id = window.location.hash.slice(1);
-            
-            // If element exists already, don't nuke filters/search
-            let element = document.getElementById(id);
-            if (!element) {
-                activeCategory = 'all';
-                searchTerm = '';
-                document.getElementById('searchBox').value = '';
-                document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
-                document.querySelector('.category-btn[data-category="all"]').classList.add('active');
-                renderPatterns();
-                element = document.getElementById(id);
-            }
-            if (element) {
-                setTimeout(() => {
-                    element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                    element.focus({ preventScroll: true });
-                }, 100);
-            }
+      if (e.key === 'ArrowRight' || e.key === 'ArrowDown') nextIndex = (currentIndex + 1) % tabButtons.length;
+      else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') nextIndex = (currentIndex - 1 + tabButtons.length) % tabButtons.length;
+      else if (e.key === 'Home') nextIndex = 0;
+      else if (e.key === 'End') nextIndex = tabButtons.length - 1;
+      else return;
+
+      e.preventDefault();
+      tabButtons[nextIndex].focus();
+    });
+
+    // Global keyboard shortcuts
+    document.addEventListener('keydown', (e) => {
+      const activeEl = document.activeElement;
+      const isTypingField = activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA');
+
+      if (e.key === '/' && !isTypingField) {
+        e.preventDefault();
+        const sb = document.getElementById('searchBox');
+        sb.focus();
+        sb.select();
+        return;
+      }
+
+      if (e.key === 'Escape') {
+        const sb = document.getElementById('searchBox');
+        if (document.activeElement === sb || sb.value) {
+          sb.value = '';
+          searchTerm = '';
+          renderPatterns({ announceStatus: true });
+          sb.focus();
+          return;
         }
+      }
 
-        // Initial render
-        renderPatterns();
-        handleDeepLink();
+      if (e.key === 'Enter' && document.activeElement === document.getElementById('searchBox')) {
+        const first = document.querySelector('#patternGrid .pattern-card');
+        if (first) first.focus();
+      }
+    });
 
-        // Handle hash changes
-        window.addEventListener('hashchange', handleDeepLink);
-    </script>
+    // Deep link handling
+    function handleDeepLink(isInitial = false) {
+      const hash = window.location.hash;
+      if (isInitial && !hash) {
+        renderPatterns({ announceStatus: false });
+        return;
+      }
+      if (!hash) return;
+
+      const id = hash.slice(1);
+
+      // Render with current state first
+      renderPatterns({ announceStatus: false });
+
+      let el = document.getElementById(id);
+
+      // If not found, reset filters and try again
+      if (!el) {
+        activeCategory = 'all';
+        searchTerm = '';
+        document.getElementById('searchBox').value = '';
+        setActiveCategory('all', { render: false });
+        renderPatterns({ announceStatus: false });
+        el = document.getElementById(id);
+      }
+
+      if (el) {
+        const scrollTo = () => el.scrollIntoView({ behavior: prefersReducedMotion ? 'auto' : 'smooth', block: 'start' });
+        setTimeout(() => {
+          scrollTo();
+          el.focus({ preventScroll: true });
+        }, 60);
+      }
+    }
+
+    // Initial render
+    handleDeepLink(true);
+
+    // Hash changes
+    window.addEventListener('hashchange', () => handleDeepLink(false));
+  </script>
 </body>
 </html>
