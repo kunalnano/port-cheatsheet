@@ -165,7 +165,7 @@
                 id: 'basic-blueprint',
                 category: 'blueprints',
                 title: 'Basic Blueprint',
-                validated: 'production',
+                validated: 'adapt',
                 problem: 'Need to model a service/resource in Port',
                 description: 'Standard blueprint with string, number, boolean, and enum properties plus a required relation.',
                 code: `{
@@ -200,7 +200,7 @@
             },
             {
                 id: 'arrays-objects',
-                validated: 'production',
+                validated: 'adapt',
                 category: 'blueprints',
                 title: 'Arrays & Objects',
                 problem: 'Need to store lists or complex nested data',
@@ -231,7 +231,7 @@
             },
             {
                 id: 'mirror-property',
-                validated: 'production',
+                validated: 'adapt',
                 category: 'blueprints',
                 title: 'Mirror Property',
                 problem: 'Want to display data from a related entity',
@@ -258,7 +258,7 @@
             },
             {
                 id: 'calculation-property',
-                validated: 'tested',
+                validated: 'adapt',
                 category: 'blueprints',
                 title: 'Calculation Property',
                 problem: 'Need computed values from entity properties',
@@ -332,7 +332,7 @@
             // ==================== MAPPING ====================
             {
                 id: 'github-repo-mapping',
-                validated: 'production',
+                validated: 'adapt',
                 category: 'mapping',
                 title: 'GitHub Repository Mapping',
                 problem: 'Import repos from GitHub into Port',
@@ -392,7 +392,7 @@
             },
             {
                 id: 'argocd-app-mapping',
-                validated: 'production',
+                validated: 'adapt',
                 category: 'mapping',
                 title: 'ArgoCD Application Mapping',
                 problem: 'Import ArgoCD apps with sync status',
@@ -423,7 +423,7 @@
             },
             {
                 id: 'terraform-workspace-mapping',
-                validated: 'tested',
+                validated: 'adapt',
                 category: 'mapping',
                 title: 'Terraform Cloud Workspace',
                 problem: 'Import Terraform workspaces into Port',
@@ -454,7 +454,7 @@
             },
             {
                 id: 'search-relation',
-                validated: 'production',
+                validated: 'adapt',
                 category: 'mapping',
                 title: 'Search-Based Relation',
                 problem: 'Create relations based on matching properties',
@@ -516,7 +516,7 @@ curl -X POST "https://ingest.getport.io/<YOUR_WEBHOOK_ID>" \\
             // ==================== ACTIONS ====================
             {
                 id: 'basic-self-service-action',
-                validated: 'production',
+                validated: 'adapt',
                 category: 'actions',
                 title: 'Basic Self-Service Action',
                 problem: 'Enable developers to trigger operations',
@@ -562,7 +562,7 @@ curl -X POST "https://ingest.getport.io/<YOUR_WEBHOOK_ID>" \\
             },
             {
                 id: 'entity-selection-input',
-                validated: 'production',
+                validated: 'adapt',
                 category: 'actions',
                 title: 'Entity Selection Input',
                 problem: 'Let users pick from existing entities',
@@ -646,7 +646,7 @@ curl -X POST "https://ingest.getport.io/<YOUR_WEBHOOK_ID>" \\
             },
             {
                 id: 'action-with-approval',
-                validated: 'production',
+                validated: 'adapt',
                 category: 'actions',
                 title: 'Action with Approval',
                 problem: 'Require approval before execution',
@@ -712,7 +712,7 @@ curl -X POST "https://ingest.getport.io/<YOUR_WEBHOOK_ID>" \\
             // ==================== SCORECARDS ====================
             {
                 id: 'production-readiness-scorecard',
-                validated: 'production',
+                validated: 'adapt',
                 category: 'scorecards',
                 title: 'Production Readiness Scorecard',
                 problem: 'Measure if services meet production standards',
@@ -768,7 +768,7 @@ curl -X POST "https://ingest.getport.io/<YOUR_WEBHOOK_ID>" \\
             },
             {
                 id: 'time-based-rule',
-                validated: 'tested',
+                validated: 'adapt',
                 category: 'scorecards',
                 title: 'Time-Based Rule',
                 problem: 'Check if property was updated recently',
@@ -816,7 +816,7 @@ curl -X POST "https://ingest.getport.io/<YOUR_WEBHOOK_ID>" \\
             },
             {
                 id: 'mirror-property-scorecard',
-                validated: 'tested',
+                validated: 'adapt',
                 category: 'scorecards',
                 title: 'Scorecard on Mirror Property',
                 problem: 'Score based on related entity data',
@@ -863,7 +863,7 @@ curl -X POST "https://ingest.getport.io/<YOUR_WEBHOOK_ID>" \\
             // ==================== AUTOMATIONS ====================
             {
                 id: 'entity-created-trigger',
-                validated: 'production',
+                validated: 'adapt',
                 category: 'automations',
                 title: 'Entity Created Trigger',
                 problem: 'Take action when new entity appears',
@@ -892,7 +892,7 @@ curl -X POST "https://ingest.getport.io/<YOUR_WEBHOOK_ID>" \\
             },
             {
                 id: 'entity-updated-trigger',
-                validated: 'production',
+                validated: 'adapt',
                 category: 'automations',
                 title: 'Entity Updated Trigger',
                 problem: 'React to property changes',
@@ -931,7 +931,7 @@ curl -X POST "https://ingest.getport.io/<YOUR_WEBHOOK_ID>" \\
             },
             {
                 id: 'timer-cron-trigger',
-                validated: 'tested',
+                validated: 'adapt',
                 category: 'automations',
                 title: 'Timer Property Expired',
                 problem: 'Run automation when a date property passes',
@@ -962,7 +962,7 @@ curl -X POST "https://ingest.getport.io/<YOUR_WEBHOOK_ID>" \\
             },
             {
                 id: 'scorecard-change-trigger',
-                validated: 'tested',
+                validated: 'adapt',
                 category: 'automations',
                 title: 'Scorecard Change Trigger',
                 problem: 'React when scorecard level changes',
@@ -1000,7 +1000,7 @@ curl -X POST "https://ingest.getport.io/<YOUR_WEBHOOK_ID>" \\
             // ==================== JQ ====================
             {
                 id: 'jq-default-values',
-                validated: 'production',
+                validated: 'adapt',
                 category: 'jq',
                 title: 'Default Values',
                 problem: 'Handle null/missing fields safely',
@@ -1024,7 +1024,7 @@ if .properties.count == null then 0 else .properties.count end
             },
             {
                 id: 'jq-string-manipulation',
-                validated: 'production',
+                validated: 'adapt',
                 category: 'jq',
                 title: 'String Manipulation',
                 problem: 'Transform strings in mappings',
@@ -1053,7 +1053,7 @@ if .properties.count == null then 0 else .properties.count end
             },
             {
                 id: 'jq-array-operations',
-                validated: 'production',
+                validated: 'adapt',
                 category: 'jq',
                 title: 'Array Operations',
                 problem: 'Filter and transform arrays',
@@ -1085,7 +1085,7 @@ if .properties.count == null then 0 else .properties.count end
             },
             {
                 id: 'jq-date-handling',
-                validated: 'production',
+                validated: 'adapt',
                 category: 'jq',
                 title: 'Date Handling',
                 problem: 'Work with timestamps and dates',
@@ -1112,7 +1112,7 @@ now | todateiso8601
             },
             {
                 id: 'jq-automation-conditions',
-                validated: 'tested',
+                validated: 'adapt',
                 category: 'jq',
                 title: 'Automation Conditions',
                 problem: 'Write complex automation trigger conditions',
@@ -1140,7 +1140,7 @@ now | todateiso8601
             // ==================== API ====================
             {
                 id: 'api-authentication',
-                validated: 'production',
+                validated: 'adapt',
                 category: 'api',
                 title: 'API Authentication',
                 problem: 'Get access token for Port API',
@@ -1167,7 +1167,7 @@ curl -H "Authorization: Bearer $TOKEN" \\
             },
             {
                 id: 'api-entity-crud',
-                validated: 'production',
+                validated: 'adapt',
                 category: 'api',
                 title: 'Entity CRUD Operations',
                 problem: 'Create, read, update, delete entities',
@@ -1201,7 +1201,7 @@ curl -X DELETE "https://api.getport.io/v1/blueprints/service/entities/my-service
             },
             {
                 id: 'api-search-entities',
-                validated: 'production',
+                validated: 'adapt',
                 category: 'api',
                 title: 'Search Entities',
                 problem: 'Query entities with filters',
@@ -1233,7 +1233,7 @@ curl -X POST "https://api.getport.io/v1/blueprints/service/entities/search" \\
             },
             {
                 id: 'api-action-run-status',
-                validated: 'production',
+                validated: 'adapt',
                 category: 'api',
                 title: 'Update Action Run Status',
                 problem: 'Report action success/failure back to Port',
@@ -1267,7 +1267,7 @@ curl -X POST "https://api.getport.io/v1/actions/runs/$PORT_RUN_ID/logs" \\
             },
             {
                 id: 'api-bulk-upsert',
-                validated: 'tested',
+                validated: 'adapt',
                 category: 'api',
                 title: 'Bulk Upsert Entities',
                 problem: 'Create/update many entities at once',
@@ -1304,7 +1304,7 @@ curl -X DELETE "https://api.getport.io/v1/blueprints/service/entities" \\
             // ==================== TROUBLESHOOTING ====================
             {
                 id: 'ts-entity-not-showing',
-                validated: 'production',
+                validated: 'adapt',
                 category: 'troubleshooting',
                 title: 'Entity Not Showing Up',
                 problem: 'Integration ran but entity not in catalog',
@@ -1333,7 +1333,7 @@ echo '{"metadata":{"name":"test"}}' | jq '.metadata.name'`,
             },
             {
                 id: 'ts-jq-returning-null',
-                validated: 'production',
+                validated: 'adapt',
                 category: 'troubleshooting',
                 title: 'JQ Returning Null',
                 problem: 'Mapping produces null values',
@@ -1368,7 +1368,7 @@ if (.value | type) == "string" then .value else (.value | tostring) end
             },
             {
                 id: 'ts-relation-not-resolving',
-                validated: 'production',
+                validated: 'adapt',
                 category: 'troubleshooting',
                 title: 'Relation Not Resolving',
                 problem: 'Relation shows unresolved or missing target',
@@ -1406,7 +1406,7 @@ relations:
             },
             {
                 id: 'ts-action-run-stuck',
-                validated: 'production',
+                validated: 'adapt',
                 category: 'troubleshooting',
                 title: 'Action Run Stuck',
                 problem: 'Action shows IN_PROGRESS forever',
