@@ -1,50 +1,74 @@
 # Port.io Implementation Cheat Sheet
 
-Quick-reference patterns for Port.io implementations. Copy-paste ready.
+**Live Site:** [https://kunalnano.github.io/port-cheatsheet/](https://kunalnano.github.io/port-cheatsheet/)
 
-## 🔗 [**Open the Cheat Sheet →**](https://kunalnano.github.io/port-cheatsheet/)
+Copy-paste patterns for Port.io blueprints, mappings, actions, scorecards, automations, JQ, and API calls.
 
 ---
 
-## What's Inside
+## Versions
 
-| Category | Patterns | Use For |
-|----------|----------|---------|
-| **Blueprints** | Properties, mirrors, calculations, aggregations | Designing data models |
-| **Mapping** | JQ transforms, search relations, ArgoCD, K8s | Integration configuration |
-| **Actions** | Self-service, GitHub workflows, webhooks, RBAC | Building developer workflows |
-| **Scorecards** | Production readiness, security, time-based rules | Compliance & standards |
-| **Automations** | Entity triggers, timers, Slack/Jira notifications | Event-driven workflows |
-| **JQ Patterns** | Common expressions, conditionals, time calcs | Writing JQ anywhere in Port |
-| **API** | REST examples, Python SDK | Programmatic access |
+| File | Description | Dependencies |
+|------|-------------|--------------|
+| [`index.html`](index.html) | **Default** - Dependency-free, works offline | None |
+| [`index-prism.html`](index-prism.html) | Enhanced syntax highlighting | Prism.js via CDN |
+
+**Recommendation:** Use `index.html` for reliability in corporate/restricted networks. Use `index-prism.html` for better visual polish when CDN access is available.
+
+---
+
+## What's Included
+
+| Category | Patterns | Examples |
+|----------|----------|----------|
+| **Blueprints** | 5 | Basic, arrays/objects, mirror, calculation, aggregation |
+| **Mapping** | 6 | GitHub, K8s, ArgoCD, Terraform, search relations, webhooks |
+| **Actions** | 5 | Self-service, entity selection, create, approval, workflows |
+| **Scorecards** | 3 | Production readiness, time-based rules, mirror properties |
+| **Automations** | 4 | Entity created/updated, cron/timer, scorecard triggers |
+| **JQ** | 5 | Defaults, strings, arrays, dates, automation conditions |
+| **API** | 5 | Auth, CRUD, search, run updates, bulk operations |
+
+**Total: 33 patterns**
+
+---
 
 ## How to Use
 
-1. **Search** - Type keywords to filter across all patterns
-2. **Filter** - Click category buttons to narrow down
-3. **Copy** - Hit the copy button on any snippet
-4. **Adapt** - Replace `<YOUR_ORG>`, `<YOUR_REPO>`, etc. with actual values
-
-## API Region Note
-
-Snippets use `api.getport.io` (US). For EU customers, swap to `api.eu.getport.io`.
-
-## Contributing
-
-Add patterns directly to the `patterns` array in `index.html`:
-
-```javascript
-{
-    category: 'actions',  // blueprints | mapping | actions | scorecards | automations | jq | api
-    title: 'Your Pattern Name',
-    description: 'What it does',
-    code: `your code here`,
-    tags: ['relevant', 'tags']
-}
-```
-
-PR it or ping moi.
+1. **Search** - Type keywords like `kubernetes`, `webhook`, `jq time`
+2. **Filter** - Click category buttons to narrow results
+3. **Copy** - Click "Copy" button on any snippet
+4. **Adapt** - Replace `<YOUR_ORG>`, `<YOUR_REPO>`, `<YOUR_DOMAIN>` placeholders
+5. **Print** - Use the Print button for PDF/offline reference
 
 ---
 
-Built for Port.io customer implementations 🚢
+## API Regions
+
+- **US:** `api.getport.io`
+- **EU:** `api.eu.getport.io`
+
+---
+
+## Contributing
+
+To add a pattern, edit the `patterns` array in the HTML file:
+
+```javascript
+{
+    category: 'mapping',           // blueprints|mapping|actions|scorecards|automations|jq|api
+    title: 'Your Pattern Title',
+    problem: 'What problem this solves',
+    description: 'How it works',
+    code: `your code here`,
+    output: `expected result or notes`,
+    tags: ['tag1', 'tag2']
+}
+```
+
+---
+
+## Links
+
+- [Port.io Documentation](https://docs.port.io)
+- [Port.io API Reference](https://api.getport.io/static/index.html)

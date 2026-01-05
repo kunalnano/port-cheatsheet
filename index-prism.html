@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Port.io Implementation Cheat Sheet</title>
+    <title>Port.io Implementation Cheat Sheet (Prism)</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
     <style>
         * {
             margin: 0;
@@ -242,14 +243,24 @@
             padding: 20px;
             overflow-x: auto;
             margin: 0;
+            background: #1e293b !important;
+        }
+
+        pre[class*="language-"] {
+            margin: 0;
+            padding: 20px;
+            background: #1e293b !important;
         }
 
         code {
-            color: #e2e8f0;
             font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
             font-size: 13px;
             line-height: 1.5;
             white-space: pre;
+        }
+
+        code[class*="language-"] {
+            text-shadow: none !important;
         }
 
         .output-section {
@@ -2183,6 +2194,17 @@ Best practices:
             return div.innerHTML;
         }
 
+        function detectLanguage(code, category) {
+            // Detect language based on code content and category
+            if (code.trim().startsWith('{') || code.trim().startsWith('[')) return 'json';
+            if (code.trim().startsWith('resources:') || code.includes('kind:') || code.includes('mappings:')) return 'yaml';
+            if (code.trim().startsWith('curl ') || code.trim().startsWith('#')) return 'bash';
+            if (code.includes('def ') || code.includes('import ') || code.includes('class ')) return 'python';
+            if (category === 'jq') return 'javascript'; // JQ is close enough to JS for highlighting
+            if (category === 'api') return 'bash';
+            return 'javascript';
+        }
+
         function renderPatterns() {
             const grid = document.getElementById('patternGrid');
             const filtered = patterns.filter(p => {
@@ -2223,7 +2245,7 @@ Best practices:
                         <div class="code-label">Code</div>
                         <div class="code-container">
                             <button class="copy-btn" data-code="${i}">Copy</button>
-                            <pre><code>${escapeHtml(p.code)}</code></pre>
+                            <pre class="language-${detectLanguage(p.code, p.category)}"><code class="language-${detectLanguage(p.code, p.category)}">${escapeHtml(p.code)}</code></pre>
                         </div>
                     </div>
                     ${p.output ? `
@@ -2243,6 +2265,11 @@ Best practices:
                     copyCode(this, filtered[index].code);
                 });
             });
+
+            // Highlight code with Prism
+            if (typeof Prism !== 'undefined') {
+                Prism.highlightAll();
+            }
         }
 
         function copyCode(button, code) {
@@ -2285,6 +2312,15 @@ Best practices:
             });
         });
 
+        renderPatterns();
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-yaml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+    <script>
+        // Re-render with Prism now loaded
         renderPatterns();
     </script>
 </body>
