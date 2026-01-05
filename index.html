@@ -5,382 +5,104 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Port.io Implementation Cheat Sheet</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0f172a; color: #e2e8f0; line-height: 1.6; padding: 20px; }
+        .container { max-width: 1400px; margin: 0 auto; }
+        
+        header { text-align: center; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px solid #334155; }
+        h1 { font-size: 2.5rem; margin-bottom: 10px; background: linear-gradient(135deg, #60a5fa, #a78bfa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .subtitle { color: #94a3b8; font-size: 1.1rem; }
+        .version { color: #64748b; font-size: 0.85rem; margin-top: 8px; }
+        
+        .header-actions { display: flex; gap: 12px; justify-content: center; margin-top: 15px; flex-wrap: wrap; }
+        .header-btn { background: #1e293b; border: 1px solid #334155; color: #e2e8f0; padding: 8px 16px; border-radius: 6px; cursor: pointer; text-decoration: none; font-size: 0.9rem; transition: all 0.2s; }
+        .header-btn:hover { background: #334155; border-color: #475569; }
+        
+        .notice-box { background: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 12px 16px; margin-bottom: 20px; font-size: 0.9rem; }
+        .notice-box code { background: #334155; padding: 2px 6px; border-radius: 4px; font-family: 'SF Mono', Monaco, monospace; }
+        
+        .controls { display: flex; flex-direction: column; gap: 15px; margin-bottom: 25px; }
+        .search-box { width: 100%; padding: 12px 16px; font-size: 1rem; border: 2px solid #334155; border-radius: 8px; background: #1e293b; color: #e2e8f0; transition: border-color 0.2s; }
+        .search-box:focus { outline: none; border-color: #60a5fa; }
+        .search-box::placeholder { color: #64748b; }
+        
+        .category-filters { display: flex; flex-wrap: wrap; gap: 8px; }
+        .category-btn { padding: 8px 16px; border: 1px solid #334155; border-radius: 20px; background: #1e293b; color: #94a3b8; cursor: pointer; transition: all 0.2s; font-size: 0.9rem; }
+        .category-btn:hover { border-color: #60a5fa; color: #60a5fa; }
+        .category-btn.active { background: #60a5fa; color: #0f172a; border-color: #60a5fa; }
+        
+        .status { text-align: center; color: #64748b; padding: 10px; font-size: 0.9rem; }
+        
+        .pattern-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(400px, 1fr)); gap: 20px; }
+        
+        .pattern-card { background: #1e293b; border: 1px solid #334155; border-radius: 12px; overflow: hidden; transition: all 0.2s; }
+        .pattern-card:hover { border-color: #475569; transform: translateY(-2px); box-shadow: 0 8px 25px rgba(0,0,0,0.3); }
+        
+        .card-header { padding: 16px; border-bottom: 1px solid #334155; }
+        .card-category { display: inline-block; padding: 4px 10px; border-radius: 12px; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; margin-bottom: 8px; }
+        .card-title { font-size: 1.1rem; font-weight: 600; color: #f1f5f9; margin-bottom: 6px; }
+        .card-problem { font-size: 0.85rem; color: #f59e0b; margin-bottom: 6px; }
+        .card-description { font-size: 0.9rem; color: #94a3b8; }
+        
+        .card-body { padding: 16px; }
+        .code-block { background: #0f172a; border-radius: 8px; overflow: hidden; margin-bottom: 12px; }
+        .code-header { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; background: #1a2332; border-bottom: 1px solid #334155; }
+        .code-label { font-size: 0.75rem; color: #64748b; text-transform: uppercase; }
+        .copy-btn { background: #334155; border: none; color: #e2e8f0; padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 0.8rem; transition: all 0.2s; }
+        .copy-btn:hover { background: #475569; }
+        .copy-btn.copied { background: #22c55e; }
+        pre { margin: 0; padding: 12px; overflow-x: auto; font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace; font-size: 0.85rem; line-height: 1.5; color: #e2e8f0; white-space: pre-wrap; word-wrap: break-word; }
+        
+        .output-block { background: #0c1222; border: 1px dashed #334155; border-radius: 6px; padding: 10px; margin-top: 10px; }
+        .output-label { font-size: 0.7rem; color: #64748b; text-transform: uppercase; margin-bottom: 6px; }
+        .output-content { font-family: 'SF Mono', Monaco, monospace; font-size: 0.8rem; color: #94a3b8; white-space: pre-wrap; }
+        
+        .card-tags { padding: 12px 16px; border-top: 1px solid #334155; display: flex; flex-wrap: wrap; gap: 6px; }
+        .tag { background: #334155; color: #94a3b8; padding: 3px 8px; border-radius: 4px; font-size: 0.75rem; }
+        
+        .cat-blueprints { background: #3b82f6; color: white; }
+        .cat-mapping { background: #8b5cf6; color: white; }
+        .cat-actions { background: #22c55e; color: white; }
+        .cat-scorecards { background: #f59e0b; color: black; }
+        .cat-automations { background: #ef4444; color: white; }
+        .cat-jq { background: #06b6d4; color: black; }
+        .cat-api { background: #ec4899; color: white; }
+        .cat-troubleshooting { background: #f97316; color: white; }
+        
+        .footer { text-align: center; margin-top: 40px; padding: 20px; color: #64748b; border-top: 1px solid #334155; }
+        .footer a { color: #60a5fa; text-decoration: none; }
+        .footer a:hover { text-decoration: underline; }
+        
+        @media (max-width: 600px) {
+            .pattern-grid { grid-template-columns: 1fr; }
+            h1 { font-size: 1.8rem; }
+            .header-actions { flex-direction: column; }
         }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            background: linear-gradient(to bottom right, #f0f9ff, #e0e7ff);
-            min-height: 100vh;
-        }
-
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-
-        .header {
-            background: linear-gradient(135deg, #10b981, #3b82f6);
-            color: white;
-            padding: 40px;
-            border-radius: 12px;
-            margin-bottom: 20px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-        }
-
-        .header h1 {
-            font-size: 2.5em;
-            margin-bottom: 10px;
-        }
-
-        .header p {
-            opacity: 0.95;
-            font-size: 1.1em;
-        }
-
-        .header-actions {
-            margin-top: 15px;
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-
-        .header-btn {
-            background: rgba(255,255,255,0.2);
-            color: white;
-            border: 1px solid rgba(255,255,255,0.3);
-            padding: 8px 16px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 14px;
-            text-decoration: none;
-            transition: background 0.3s;
-        }
-
-        .header-btn:hover {
-            background: rgba(255,255,255,0.3);
-        }
-
-        .notice-box {
-            background: #fef3c7;
-            border-left: 4px solid #f59e0b;
-            padding: 15px 20px;
-            margin-bottom: 20px;
-            border-radius: 0 8px 8px 0;
-            font-size: 14px;
-            color: #92400e;
-        }
-
-        .notice-box strong {
-            color: #78350f;
-        }
-
-        .notice-box code {
-            background: #fffbeb;
-            color: #92400e;
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-size: 13px;
-            border: 1px solid #f59e0b;
-            font-weight: 500;
-        }
-
-        .notice-box code {
-            background: #fde68a;
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-size: 13px;
-        }
-
-        .controls {
-            background: white;
-            padding: 20px;
-            border-radius: 12px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-
-        .search-box {
-            width: 100%;
-            padding: 12px 20px;
-            font-size: 16px;
-            border: 2px solid #e5e7eb;
-            border-radius: 8px;
-            margin-bottom: 15px;
-            transition: border-color 0.3s;
-        }
-
-        .search-box:focus {
-            outline: none;
-            border-color: #3b82f6;
-        }
-
-        .category-filters {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-
-        .category-btn {
-            padding: 8px 16px;
-            border: 2px solid #e5e7eb;
-            background: white;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-size: 14px;
-        }
-
-        .category-btn:hover {
-            background: #f3f4f6;
-        }
-
-        .category-btn.active {
-            background: #3b82f6;
-            color: white;
-            border-color: #3b82f6;
-        }
-
-        .pattern-grid {
-            display: grid;
-            gap: 25px;
-        }
-
-        .pattern-card {
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            overflow: hidden;
-            transition: transform 0.3s, box-shadow 0.3s;
-        }
-
-        .pattern-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
-        }
-
-        .pattern-header {
-            padding: 20px;
-            border-bottom: 1px solid #e5e7eb;
-        }
-
-        .pattern-title {
-            font-size: 1.3em;
-            font-weight: 600;
-            color: #1f2937;
-            margin-bottom: 8px;
-        }
-
-        .pattern-problem {
-            color: #059669;
-            font-weight: 500;
-            margin-bottom: 8px;
-            font-size: 14px;
-        }
-
-        .pattern-description {
-            color: #6b7280;
-            margin-bottom: 12px;
-        }
-
-        .tags {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-
-        .tag {
-            padding: 4px 10px;
-            background: #dbeafe;
-            color: #1e40af;
-            border-radius: 12px;
-            font-size: 12px;
-        }
-
-        .code-section {
-            border-bottom: 1px solid #374151;
-        }
-
-        .code-section:last-child {
-            border-bottom: none;
-        }
-
-        .code-label {
-            background: #374151;
-            color: #9ca3af;
-            padding: 8px 20px;
-            font-size: 12px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .code-container {
-            position: relative;
-            background: #1e293b;
-            padding: 0;
-        }
-
-        .copy-btn {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background: #374151;
-            color: white;
-            border: none;
-            padding: 8px 12px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 13px;
-            transition: background 0.3s;
-            z-index: 10;
-        }
-
-        .copy-btn:hover {
-            background: #4b5563;
-        }
-
-        .copy-btn.copied {
-            background: #10b981;
-        }
-
-        pre {
-            padding: 20px;
-            overflow-x: auto;
-            margin: 0;
-        }
-
-        code {
-            color: #e2e8f0;
-            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-            font-size: 13px;
-            line-height: 1.5;
-            white-space: pre;
-        }
-
-        .output-section {
-            background: #064e3b;
-        }
-
-        .output-section .code-label {
-            background: #065f46;
-            color: #6ee7b7;
-        }
-
-        .output-section code {
-            color: #a7f3d0;
-        }
-
-        .status {
-            text-align: center;
-            padding: 10px;
-            background: #f3f4f6;
-            color: #6b7280;
-            font-size: 14px;
-            margin-bottom: 20px;
-            border-radius: 8px;
-        }
-
-        .footer {
-            text-align: center;
-            padding: 30px;
-            color: #6b7280;
-            margin-top: 50px;
-        }
-
-        .footer a {
-            color: #3b82f6;
-            text-decoration: none;
-        }
-
-        .footer a:hover {
-            text-decoration: underline;
-        }
-
-        .no-results {
-            text-align: center;
-            padding: 60px;
-            color: #6b7280;
-        }
-
-        @media (max-width: 768px) {
-            .header h1 {
-                font-size: 1.8em;
-            }
-            .category-filters {
-                display: grid;
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
-
-        /* Print styles */
+        
         @media print {
-            body {
-                background: white;
-                font-size: 11px;
-            }
-            .container {
-                max-width: 100%;
-                padding: 10px;
-            }
-            .header {
-                background: #1f2937 !important;
-                -webkit-print-color-adjust: exact;
-                print-color-adjust: exact;
-                padding: 20px;
-                margin-bottom: 15px;
-            }
-            .header-actions, .controls, .notice-box, .status, .copy-btn {
-                display: none !important;
-            }
-            .pattern-card {
-                break-inside: avoid;
-                box-shadow: none;
-                border: 1px solid #e5e7eb;
-                margin-bottom: 15px;
-            }
-            .pattern-grid {
-                gap: 15px;
-            }
-            .code-container, .output-section {
-                background: #f3f4f6 !important;
-                -webkit-print-color-adjust: exact;
-                print-color-adjust: exact;
-            }
-            code {
-                color: #1f2937 !important;
-                font-size: 10px;
-            }
-            .code-label {
-                background: #e5e7eb !important;
-                color: #374151 !important;
-            }
-            pre {
-                padding: 10px;
-            }
-            .footer {
-                display: none;
-            }
+            body { background: white; color: black; }
+            .controls, .header-actions, .copy-btn, .status { display: none; }
+            .pattern-card { break-inside: avoid; page-break-inside: avoid; border: 1px solid #ccc; margin-bottom: 15px; }
+            .code-block { background: #f5f5f5; }
+            pre { color: black; }
+            .card-category { border: 1px solid currentColor; }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="header">
+        <header>
             <h1>🚀 Port.io Implementation Cheat Sheet</h1>
-            <p>Copy-paste patterns for blueprints, mappings, actions, and automations</p>
+            <p class="subtitle">Copy-paste patterns for blueprints, mappings, actions, and automations</p>
+            <p class="version">Last updated: January 5, 2026 • v2.0</p>
             <div class="header-actions">
                 <button class="header-btn" onclick="window.print()">🖨️ Print / Save PDF</button>
-                <a class="header-btn" href="https://docs.port.io" target="_blank">📚 Full Docs</a>
+                <a href="https://docs.port.io" target="_blank" class="header-btn">📚 Full Docs</a>
             </div>
-        </div>
-
+        </header>
+        
         <div class="notice-box">
-            <strong>📝 Placeholders:</strong> Replace <code>&lt;YOUR_ORG&gt;</code>, <code>&lt;YOUR_REPO&gt;</code>, <code>&lt;YOUR_DOMAIN&gt;</code> with your values.
+            <strong>📝 Placeholders:</strong> Replace <code>&lt;YOUR_ORG&gt;</code>, <code>&lt;YOUR_REPO&gt;</code>, <code>&lt;YOUR_DOMAIN&gt;</code> with your values.<br>
             <strong>API Region:</strong> US → <code>api.getport.io</code> | EU → <code>api.eu.getport.io</code>
         </div>
 
@@ -395,16 +117,15 @@
                 <button class="category-btn" data-category="automations">Automations</button>
                 <button class="category-btn" data-category="jq">JQ</button>
                 <button class="category-btn" data-category="api">API</button>
+                <button class="category-btn" data-category="troubleshooting">Troubleshooting</button>
             </div>
         </div>
 
         <div class="status" id="status">Loading patterns...</div>
-
         <div class="pattern-grid" id="patternGrid"></div>
 
         <div class="footer">
             💡 Click copy to grab snippets • <a href="https://docs.port.io" target="_blank">docs.port.io</a> for full documentation
-            • Built for Port.io implementations
         </div>
     </div>
 
@@ -412,346 +133,233 @@
         const patterns = [
             // ==================== BLUEPRINTS ====================
             {
+                id: 'bp-basic',
                 category: 'blueprints',
                 title: 'Basic Blueprint',
                 problem: 'Need to model a service/resource in Port',
                 description: 'Standard blueprint with string, number, boolean, and enum properties plus a required relation.',
                 code: `{
-  "identifier": "service",
-  "title": "Service",
+  "identifier": "microservice",
+  "title": "Microservice",
   "icon": "Service",
   "schema": {
     "properties": {
       "language": {
         "type": "string",
-        "title": "Language",
-        "enum": ["Python", "Go", "Node.js", "Java"],
-        "enumColors": {
-          "Python": "blue",
-          "Go": "turquoise",
-          "Node.js": "green",
-          "Java": "orange"
-        }
+        "enum": ["Python", "Node", "Go", "Java"],
+        "title": "Language"
       },
-      "owner": {
-        "type": "string",
-        "title": "Owner",
-        "format": "user"
-      },
-      "slack_channel": {
-        "type": "string",
-        "title": "Slack Channel",
-        "pattern": "^#[a-z0-9-]+$"
-      },
-      "tier": {
-        "type": "number",
-        "title": "Tier",
-        "enum": [1, 2, 3],
-        "default": 3
-      },
-      "on_call": {
-        "type": "boolean",
-        "title": "Has On-Call",
-        "default": false
-      }
+      "version": { "type": "string", "title": "Version" },
+      "replicas": { "type": "number", "default": 1 },
+      "on_call": { "type": "string", "format": "user" },
+      "is_production": { "type": "boolean", "default": false }
     },
-    "required": ["language", "owner"]
+    "required": ["language"]
   },
   "relations": {
-    "domain": {
-      "title": "Domain",
-      "target": "domain",
+    "team": {
+      "target": "team",
       "required": true,
-      "many": false
+      "many": false,
+      "title": "Owning Team"
     }
   }
 }`,
-                output: `Blueprint "service" created with:
-- 5 properties (language, owner, slack_channel, tier, on_call)
-- 1 required relation to "domain"
-- Appears in catalog at: Service`,
-                tags: ['blueprint', 'properties', 'relations', 'enum']
+                output: 'Creates blueprint in Port catalog',
+                tags: ['blueprint', 'schema', 'properties', 'relations']
             },
             {
+                id: 'bp-arrays',
                 category: 'blueprints',
-                title: 'Array & Object Properties',
-                problem: 'Need to store lists (tags, endpoints) or nested data',
-                description: 'Array properties with typed items and object properties for structured nested data.',
+                title: 'Arrays & Objects',
+                problem: 'Need to store lists or complex nested data',
+                description: 'Blueprint with array and object property types for structured data.',
                 code: `{
+  "identifier": "deployment",
   "schema": {
     "properties": {
-      "tags": {
+      "environments": {
         "type": "array",
-        "title": "Tags",
         "items": { "type": "string" },
-        "default": []
-      },
-      "endpoints": {
-        "type": "array",
-        "title": "API Endpoints",
-        "items": {
-          "type": "object",
-          "properties": {
-            "path": { "type": "string" },
-            "method": { "type": "string", "enum": ["GET", "POST", "PUT", "DELETE"] }
-          }
-        }
+        "title": "Environments"
       },
       "config": {
         "type": "object",
-        "title": "Configuration",
-        "description": "Free-form JSON config"
+        "title": "Configuration"
       },
-      "links": {
-        "type": "object",
-        "title": "Links",
-        "properties": {
-          "repo": { "type": "string", "format": "url" },
-          "docs": { "type": "string", "format": "url" },
-          "dashboard": { "type": "string", "format": "url" }
-        }
+      "urls": {
+        "type": "array",
+        "items": { "type": "string", "format": "url" },
+        "title": "URLs"
       }
     }
   }
 }`,
-                output: `Properties accept:
-- tags: ["backend", "critical", "python"]
-- endpoints: [{"path": "/api/users", "method": "GET"}]
-- config: {"timeout": 30, "retries": 3}
-- links: {"repo": "https://...", "docs": "https://..."}`,
+                output: 'Supports ["dev","staging","prod"] and {"key": "value"}',
                 tags: ['blueprint', 'array', 'object', 'nested']
             },
             {
+                id: 'bp-mirror',
                 category: 'blueprints',
-                title: 'Mirror Properties',
-                problem: 'Need to display data from a related entity without duplication',
-                description: 'Pull properties from related entities. Supports multi-hop paths through relation chains.',
+                title: 'Mirror Property',
+                problem: 'Want to display data from a related entity',
+                description: 'Mirror pulls property values from related entities for display.',
                 code: `{
+  "identifier": "service",
+  "schema": {
+    "properties": {
+      "team_slack": {
+        "type": "string",
+        "title": "Team Slack Channel"
+      }
+    }
+  },
   "mirrorProperties": {
-    "domain_owner": {
-      "title": "Domain Owner",
-      "path": "domain.owner"
-    },
-    "team_slack": {
-      "title": "Team Slack Channel",
-      "path": "domain.owning_team.slack_channel"
-    },
-    "cluster_region": {
-      "title": "Cluster Region",
-      "path": "environment.cluster.region"
+    "owner_email": {
+      "path": "team.owner_email",
+      "title": "Team Owner Email"
     }
   }
 }`,
-                output: `Entity displays:
-- Domain Owner: "alice@company.com" (from related domain)
-- Team Slack Channel: "#platform-team" (2-hop: domain → team)
-- Cluster Region: "us-east-1" (2-hop: environment → cluster)
-
-Values update automatically when source changes.`,
-                tags: ['mirror', 'relations', 'properties', 'derived']
+                output: 'Displays team owner email on service entity',
+                tags: ['blueprint', 'mirror', 'relation', 'display']
             },
             {
+                id: 'bp-calculation',
                 category: 'blueprints',
-                title: 'Calculation Properties',
-                problem: 'Need computed fields (URLs, scores, flags) derived from entity data',
-                description: 'JQ expressions that compute values from entity properties. Evaluated on every view.',
+                title: 'Calculation Property',
+                problem: 'Need computed values from entity properties',
+                description: 'Calculation properties use JQ to derive values from other properties.',
                 code: `{
+  "identifier": "service",
   "calculationProperties": {
-    "service_url": {
-      "title": "Service URL",
+    "health_status": {
+      "title": "Health Status",
       "type": "string",
-      "format": "url",
-      "calculation": "\"https://\" + .identifier + \".prod.company.com\""
+      "colorized": true,
+      "colors": {
+        "healthy": "green",
+        "degraded": "yellow",
+        "critical": "red"
+      },
+      "calculation": "if .properties.error_rate > 5 then \"critical\" elif .properties.error_rate > 1 then \"degraded\" else \"healthy\" end"
     },
-    "is_critical": {
-      "title": "Is Critical",
-      "type": "boolean",
-      "calculation": ".properties.tier == 1 or .properties.pagerduty_enabled == true"
-    },
-    "health_score": {
-      "title": "Health Score",
-      "type": "number",
-      "calculation": "((.properties.uptime // 0) * 0.4 + (.properties.test_coverage // 0) * 0.3 + (.properties.doc_coverage // 0) * 0.3) | floor"
-    },
-    "days_since_deploy": {
-      "title": "Days Since Deploy",
-      "type": "number",
-      "calculation": "if .properties.last_deployed then ((now - (.properties.last_deployed | fromdateiso8601)) / 86400) | floor else null end"
-    },
-    "status_emoji": {
-      "title": "Status",
+    "display_name": {
+      "title": "Display Name",
       "type": "string",
-      "calculation": "if .properties.status == \"healthy\" then \"✅\" elif .properties.status == \"degraded\" then \"⚠️\" else \"❌\" end"
+      "calculation": ".title + \" (\" + .properties.environment + \")\""
     }
   }
 }`,
-                output: `Calculated values:
-- service_url: "https://checkout-api.prod.company.com"
-- is_critical: true
-- health_score: 87
-- days_since_deploy: 12
-- status_emoji: "✅"`,
-                tags: ['calculation', 'jq', 'computed', 'derived']
+                output: 'Auto-calculates health_status based on error_rate',
+                tags: ['blueprint', 'calculation', 'jq', 'computed']
             },
             {
+                id: 'bp-aggregation',
                 category: 'blueprints',
-                title: 'Aggregation Properties',
-                problem: 'Need metrics from child entities (counts, averages, sums)',
-                description: 'Calculate aggregate values from related entities. Updates automatically as children change.',
+                title: 'Aggregation Property',
+                problem: 'Need to count or aggregate related entities',
+                description: 'Aggregations compute metrics across related entities.',
                 code: `{
+  "identifier": "team",
   "aggregationProperties": {
     "service_count": {
-      "title": "Number of Services",
+      "title": "Services Owned",
       "type": "number",
       "target": "service",
       "query": {
         "combinator": "and",
-        "rules": [{ "property": "$relation.domain", "operator": "=", "value": "{{identifier}}" }]
+        "rules": [{ "property": "$team", "operator": "=" }]
       },
       "calculationSpec": {
         "calculationBy": "entities",
         "func": "count"
       }
     },
-    "critical_issues": {
-      "title": "Critical Issues",
+    "avg_coverage": {
+      "title": "Avg Test Coverage",
       "type": "number",
-      "target": "jira_issue",
+      "target": "service",
       "query": {
         "combinator": "and",
-        "rules": [
-          { "property": "service", "operator": "=", "value": "{{identifier}}" },
-          { "property": "priority", "operator": "=", "value": "Critical" },
-          { "property": "status", "operator": "!=", "value": "Done" }
-        ]
-      },
-      "calculationSpec": {
-        "calculationBy": "entities",
-        "func": "count"
-      }
-    },
-    "avg_response_time": {
-      "title": "Avg Response Time (ms)",
-      "type": "number",
-      "target": "api_endpoint",
-      "query": {
-        "combinator": "and",
-        "rules": [{ "property": "service", "operator": "=", "value": "{{identifier}}" }]
+        "rules": [{ "property": "$team", "operator": "=" }]
       },
       "calculationSpec": {
         "calculationBy": "property",
-        "property": "p99_latency",
+        "property": "test_coverage",
         "func": "average"
       }
     }
   }
 }`,
-                output: `Aggregated values on domain entity:
-- service_count: 24
-- critical_issues: 3
-- avg_response_time: 145.7
-
-Funcs: count, sum, average, min, max`,
-                tags: ['aggregation', 'metrics', 'count', 'rollup']
+                output: 'Shows count of services and average coverage per team',
+                tags: ['blueprint', 'aggregation', 'count', 'average', 'metrics']
             },
-
             // ==================== MAPPING ====================
             {
+                id: 'map-github',
                 category: 'mapping',
                 title: 'GitHub Repository Mapping',
-                problem: 'Sync GitHub repos to Port catalog',
-                description: 'Map repositories with language normalization, topic-based relations, and team ownership.',
+                problem: 'Import repos from GitHub into Port',
+                description: 'Maps GitHub repository data to Port entities via the GitHub integration.',
                 code: `resources:
   - kind: repository
     selector:
-      query: '.archived == false and .name | startswith("svc-")'
+      query: 'true'
     port:
       entity:
         mappings:
           identifier: .name
-          title: '.name | split("-")[1:] | join("-") | gsub("_"; " ") | ascii_upcase[0:1] + .[1:]'
-          blueprint: '"service"'
+          title: .name
+          blueprint: '"repository"'
           properties:
             url: .html_url
             description: .description
-            language: |
-              if .language == "JavaScript" or .language == "TypeScript" then "Node.js"
-              elif .language == null then "Unknown"
-              else .language
-              end
+            language: .language
             default_branch: .default_branch
-            is_private: .private
+            visibility: .visibility
             created_at: .created_at
-            topics: .topics
+            updated_at: .updated_at
           relations:
-            domain: '.topics[] | select(startswith("domain-")) | split("-")[1]'
-            team: '.topics[] | select(startswith("team-")) | split("-")[1]'`,
-                output: `Repo "svc-checkout-api" with topics ["domain-payments", "team-platform"] creates:
-{
-  "identifier": "svc-checkout-api",
-  "title": "Checkout Api",
-  "properties": {
-    "language": "Node.js",
-    "topics": ["domain-payments", "team-platform"]
-  },
-  "relations": {
-    "domain": "payments",
-    "team": "platform"
-  }
-}`,
+            owner: .owner.login`,
+                output: 'Syncs repositories to Port catalog',
                 tags: ['mapping', 'github', 'repository', 'integration']
             },
             {
+                id: 'map-k8s',
                 category: 'mapping',
                 title: 'Kubernetes Deployment Mapping',
-                problem: 'Sync K8s Deployments with resource details and status',
-                description: 'Map deployments with container info, resource limits, and rolling update status.',
+                problem: 'Import K8s deployments into Port',
+                description: 'Maps Kubernetes deployment resources to Port entities.',
                 code: `resources:
-  - kind: deployment
+  - kind: apps/v1/deployments
     selector:
-      query: '.metadata.namespace != "kube-system"'
+      query: .metadata.namespace | startswith("kube-") | not
     port:
       entity:
         mappings:
-          identifier: '.metadata.namespace + "-" + .metadata.name'
+          identifier: .metadata.namespace + "-" + .metadata.name
           title: .metadata.name
-          blueprint: '"workload"'
+          blueprint: '"deployment"'
           properties:
             namespace: .metadata.namespace
             replicas: .spec.replicas
-            available_replicas: .status.availableReplicas // 0
+            available: .status.availableReplicas // 0
             image: .spec.template.spec.containers[0].image
-            image_tag: '.spec.template.spec.containers[0].image | split(":")[1] // "latest"'
-            cpu_request: '.spec.template.spec.containers[0].resources.requests.cpu // "not set"'
-            memory_request: '.spec.template.spec.containers[0].resources.requests.memory // "not set"'
             labels: .metadata.labels
-            strategy: .spec.strategy.type
             created_at: .metadata.creationTimestamp
           relations:
-            service: '.metadata.labels["app.kubernetes.io/name"] // .metadata.labels.app // .metadata.name'
-            namespace: .metadata.namespace
-            cluster: '"{{portalConfig.exporter.cluster_name}}"'`,
-                output: `Deployment creates workload entity:
-{
-  "identifier": "production-checkout-api",
-  "title": "checkout-api",
-  "properties": {
-    "namespace": "production",
-    "replicas": 3,
-    "available_replicas": 3,
-    "image": "ghcr.io/company/checkout:v1.2.3",
-    "image_tag": "v1.2.3",
-    "cpu_request": "100m",
-    "memory_request": "256Mi"
-  }
-}`,
-                tags: ['mapping', 'kubernetes', 'deployment', 'k8s']
+            cluster: env.CLUSTER_NAME
+            namespace: .metadata.namespace`,
+                output: 'Syncs deployments excluding kube-* namespaces',
+                tags: ['mapping', 'kubernetes', 'k8s', 'deployment']
             },
             {
+                id: 'map-argocd',
                 category: 'mapping',
                 title: 'ArgoCD Application Mapping',
-                problem: 'Sync ArgoCD apps with sync status and GitOps metadata',
-                description: 'Map ArgoCD applications with health, sync status, and source repository info.',
+                problem: 'Import ArgoCD apps with sync status',
+                description: 'Maps ArgoCD application state and health to Port.',
                 code: `resources:
   - kind: application
     selector:
@@ -761,757 +369,486 @@ Funcs: count, sum, average, min, max`,
         mappings:
           identifier: .metadata.name
           title: .metadata.name
-          blueprint: '"argocd_app"'
+          blueprint: '"argoApplication"'
           properties:
             sync_status: .status.sync.status
             health_status: .status.health.status
-            sync_message: '.status.operationState.message // ""'
             repo_url: .spec.source.repoURL
             path: .spec.source.path
             target_revision: .spec.source.targetRevision
-            destination_namespace: .spec.destination.namespace
             destination_server: .spec.destination.server
-            auto_sync: .spec.syncPolicy.automated != null
-            last_synced_at: .status.operationState.finishedAt
-            created_at: .metadata.creationTimestamp
+            destination_namespace: .spec.destination.namespace
+            last_synced: .status.operationState.finishedAt
           relations:
-            service: '.metadata.name | split("-") | .[:-1] | join("-")'
-            environment: '.metadata.name | split("-") | .[-1]'
-            cluster: '.spec.destination.name // (.spec.destination.server | split("/")[-1])'`,
-                output: `ArgoCD app "checkout-api-prod" creates:
-{
-  "identifier": "checkout-api-prod",
-  "properties": {
-    "sync_status": "Synced",
-    "health_status": "Healthy",
-    "auto_sync": true,
-    "target_revision": "main"
-  },
-  "relations": {
-    "service": "checkout-api",
-    "environment": "prod"
-  }
-}`,
-                tags: ['mapping', 'argocd', 'gitops', 'kubernetes']
+            cluster: .spec.destination.name`,
+                output: 'Tracks ArgoCD sync and health status',
+                tags: ['mapping', 'argocd', 'gitops', 'sync']
             },
             {
+                id: 'map-terraform',
                 category: 'mapping',
-                title: 'Search-Based Relations',
-                problem: 'Relate entities when identifier doesn\'t match directly',
-                description: 'Use search queries to find related entities by property matching.',
-                code: `relations:
-  # Find owner by matching github username to team member property
-  owner:
-    combinator: "and"
-    rules:
-      - property: "github_username"
-        operator: "="
-        value: .owner.login
-
-  # Find environment by partial name match
-  environment:
-    combinator: "and"
-    rules:
-      - property: "name"
-        operator: "contains"
-        value: .metadata.labels.environment
-
-  # Find all services in same namespace (many relation)
-  sibling_services:
-    combinator: "and"
-    rules:
-      - property: "namespace"
-        operator: "="
-        value: .metadata.namespace
-      - property: "$identifier"
-        operator: "!="
-        value: .metadata.name`,
-                output: `Search-based relation finds entities where:
-- owner: team_member.github_username == "octocat"
-- environment: environment.name contains "production"
-- sibling_services: all services in same namespace except self`,
-                tags: ['mapping', 'relations', 'search', 'query']
-            },
-            {
-                category: 'mapping',
-                title: 'Terraform State Mapping',
-                problem: 'Sync Terraform-managed cloud resources to Port',
-                description: 'Extract resources from Terraform state with module paths and dependencies.',
+                title: 'Terraform Cloud Workspace',
+                problem: 'Import Terraform workspaces into Port',
+                description: 'Maps Terraform Cloud workspace state to Port.',
                 code: `resources:
-  - kind: tfstate
-    selector:
-      query: '.values.root_module.resources != null'
-    port:
-      itemsToParse: .values.root_module.resources
-      entity:
-        mappings:
-          identifier: .item.address | gsub("[.\\\\[\\\\]]"; "-")
-          title: .item.name
-          blueprint: '"cloud_resource"'
-          properties:
-            resource_type: .item.type
-            provider: .item.provider_name
-            mode: .item.mode
-            address: .item.address
-            # Extract common attributes based on resource type
-            arn: .item.values.arn // .item.values.id
-            region: .item.values.region // .item.values.availability_zone
-            tags: .item.values.tags // {}
-          relations:
-            # Relate to service based on tags
-            service: .item.values.tags.service // .item.values.tags.Service
-            environment: .item.values.tags.environment // .item.values.tags.Environment`,
-                output: `Terraform resource "aws_rds_instance.main" creates:
-{
-  "identifier": "aws_rds_instance-main",
-  "title": "main",
-  "properties": {
-    "resource_type": "aws_rds_instance",
-    "provider": "aws",
-    "arn": "arn:aws:rds:us-east-1:123456789:db:main"
-  },
-  "relations": {
-    "service": "checkout-api",
-    "environment": "production"
-  }
-}`,
-                tags: ['mapping', 'terraform', 'iac', 'aws', 'cloud']
-            },
-            {
-                category: 'mapping',
-                title: 'Generic Webhook (PagerDuty/Sentry)',
-                problem: 'Ingest events from tools without native integration',
-                description: 'Map raw JSON payloads from any webhook source to entities.',
-                code: `resources:
-  - kind: pagerduty_incident
+  - kind: workspace
     selector:
       query: 'true'
     port:
       entity:
         mappings:
-          identifier: .body.incident.id
-          title: .body.incident.title
-          blueprint: '"incident"'
+          identifier: .id
+          title: .attributes.name
+          blueprint: '"terraformWorkspace"'
           properties:
-            status: .body.incident.status
-            urgency: .body.incident.urgency
-            created_at: .body.incident.created_at
-            # Extract service ID from nested object
-            service_id: .body.incident.service.id
-            # Map arbitrary headers if needed
-            source: .headers["x-webhook-source"]
+            environment: .attributes.environment
+            terraform_version: .attributes."terraform-version"
+            auto_apply: .attributes."auto-apply"
+            working_directory: .attributes."working-directory"
+            execution_mode: .attributes."execution-mode"
+            vcs_repo: .attributes."vcs-repo".identifier
+            last_run_status: .__latestRun.attributes.status
+            resources_count: .__stateVersion.attributes."resources-count"
           relations:
-            # Relate to service by looking up the PD Service ID
-            service:
-              combinator: "and"
-              rules:
-                - property: "pagerduty_service_id"
-                  operator: "="
-                  value: .body.incident.service.id`,
-                output: `Maps any incoming JSON body.
-Key concepts:
-- Access payload via .body
-- Access headers via .headers
-- Use search relation to link by property match
-
-Works for: PagerDuty, Sentry, Datadog, custom webhooks`,
-                tags: ['mapping', 'webhook', 'json', 'pagerduty', 'generic']
+            project: .relationships.project.data.id`,
+                output: 'Syncs TFC workspaces with run status',
+                tags: ['mapping', 'terraform', 'tfc', 'iac']
             },
+            {
+                id: 'map-search-relation',
+                category: 'mapping',
+                title: 'Search-Based Relation',
+                problem: 'Create relations based on matching properties',
+                description: 'Uses searchRelation to find related entities by property value.',
+                code: `resources:
+  - kind: deployment
+    port:
+      entity:
+        mappings:
+          identifier: .metadata.name
+          blueprint: '"deployment"'
+          relations:
+            service:
+              combinator: '"and"'
+              rules:
+                - property: '"identifier"'
+                  operator: '"="'
+                  value: .metadata.labels.app
+            environment:
+              combinator: '"and"'
+              rules:
+                - property: '"name"'
+                  operator: '"contains"'
+                  value: .metadata.namespace`,
+                output: 'Matches deployment to service by label',
+                tags: ['mapping', 'relation', 'search', 'dynamic']
+            },
+            {
+                id: 'map-webhook',
+                category: 'mapping',
+                title: 'Generic Webhook Mapping',
+                problem: 'Ingest data from any webhook source',
+                description: 'Process incoming webhook payloads and map to Port entities.',
+                code: `# Webhook URL: https://ingest.getport.io/<YOUR_ORG>/webhook/<WEBHOOK_ID>
 
+# Mapping configuration in Port:
+{
+  "identifier": ".body.id | tostring",
+  "title": ".body.name",
+  "blueprint": "\"externalService\"",
+  "properties": {
+    "status": ".body.status",
+    "environment": ".headers.\"X-Environment\" // \"unknown\"",
+    "payload": ".body",
+    "received_at": "now | todateiso8601"
+  }
+}
+
+# Test with curl:
+curl -X POST https://ingest.getport.io/<YOUR_ORG>/webhook/<WEBHOOK_ID> \\
+  -H "Content-Type: application/json" \\
+  -H "X-Environment: production" \\
+  -d '{"id": 123, "name": "test-service", "status": "active"}'`,
+                output: 'Creates entity from any POST payload',
+                tags: ['mapping', 'webhook', 'ingest', 'custom']
+            },
             // ==================== ACTIONS ====================
             {
+                id: 'act-basic',
                 category: 'actions',
                 title: 'Basic Self-Service Action',
-                problem: 'Let developers trigger a deployment workflow',
-                description: 'Action with environment selector and version input, triggers GitHub workflow.',
+                problem: 'Enable developers to trigger operations',
+                description: 'Self-service action with text input that triggers a GitHub workflow.',
                 code: `{
-  "identifier": "deploy_service",
-  "title": "🚀 Deploy Service",
-  "icon": "Deployment",
+  "identifier": "scaffold_service",
+  "title": "Scaffold New Service",
+  "icon": "Microservice",
   "trigger": {
     "type": "self-service",
-    "blueprintIdentifier": "service",
-    "operation": "DAY-2",
-    "userInputs": {
-      "properties": {
-        "environment": {
-          "type": "string",
-          "title": "Environment",
-          "enum": ["dev", "staging", "prod"],
-          "enumColors": {
-            "dev": "turquoise",
-            "staging": "yellow",
-            "prod": "red"
-          },
-          "default": "dev"
-        },
-        "version": {
-          "type": "string",
-          "title": "Version",
-          "description": "Semver tag (e.g., v1.2.3)",
-          "pattern": "^v[0-9]+\\\\.[0-9]+\\\\.[0-9]+(-[a-zA-Z0-9]+)?$"
-        },
-        "dry_run": {
-          "type": "boolean",
-          "title": "Dry Run",
-          "description": "Simulate without deploying",
-          "default": false
-        }
+    "operation": "CREATE",
+    "blueprintIdentifier": "service"
+  },
+  "invocationMethod": {
+    "type": "GITHUB",
+    "org": "<YOUR_ORG>",
+    "repo": "<YOUR_REPO>",
+    "workflow": "scaffold.yml",
+    "workflowInputs": {
+      "service_name": "{{ .inputs.service_name }}",
+      "language": "{{ .inputs.language }}",
+      "port_context": "{{ .trigger | toJson }}"
+    }
+  },
+  "userInputs": {
+    "properties": {
+      "service_name": {
+        "type": "string",
+        "title": "Service Name",
+        "pattern": "^[a-z][a-z0-9-]*$"
       },
-      "required": ["environment", "version"]
+      "language": {
+        "type": "string",
+        "enum": ["python", "node", "go"],
+        "default": "python"
+      }
+    },
+    "required": ["service_name"]
+  }
+}`,
+                output: 'Triggers scaffold.yml with service_name input',
+                tags: ['action', 'self-service', 'github', 'scaffold']
+            },
+            {
+                id: 'act-entity-select',
+                category: 'actions',
+                title: 'Entity Selection Input',
+                problem: 'Let users pick from existing entities',
+                description: 'Action input that presents a dropdown of entities from a blueprint.',
+                code: `{
+  "identifier": "deploy_to_cluster",
+  "title": "Deploy to Cluster",
+  "trigger": {
+    "type": "self-service",
+    "operation": "DAY-2",
+    "blueprintIdentifier": "service"
+  },
+  "userInputs": {
+    "properties": {
+      "target_cluster": {
+        "type": "string",
+        "format": "entity",
+        "blueprint": "cluster",
+        "title": "Target Cluster",
+        "description": "Select deployment target"
+      },
+      "target_namespace": {
+        "type": "string",
+        "format": "entity",
+        "blueprint": "namespace",
+        "title": "Namespace",
+        "dependsOn": ["target_cluster"],
+        "dataset": {
+          "combinator": "and",
+          "rules": [{
+            "property": "$relation.cluster",
+            "operator": "=",
+            "value": "{{ .inputs.target_cluster }}"
+          }]
+        }
+      }
+    },
+    "required": ["target_cluster", "target_namespace"]
+  }
+}`,
+                output: 'Cascading dropdowns: cluster → filtered namespaces',
+                tags: ['action', 'entity', 'dropdown', 'cascade', 'dependsOn']
+            },
+            {
+                id: 'act-create',
+                category: 'actions',
+                title: 'Create Entity Action',
+                problem: 'Create new entities via self-service',
+                description: 'Action that creates a new entity in Port when triggered.',
+                code: `{
+  "identifier": "create_environment",
+  "title": "Create Environment",
+  "trigger": {
+    "type": "self-service",
+    "operation": "CREATE",
+    "blueprintIdentifier": "environment"
+  },
+  "invocationMethod": {
+    "type": "WEBHOOK",
+    "url": "https://api.getport.io/v1/blueprints/environment/entities",
+    "method": "POST",
+    "headers": {
+      "Authorization": "Bearer {{ .secrets.PORT_CLIENT_SECRET }}"
+    },
+    "body": {
+      "identifier": "{{ .inputs.env_name }}",
+      "title": "{{ .inputs.env_name | title }}",
+      "properties": {
+        "type": "{{ .inputs.env_type }}",
+        "region": "{{ .inputs.region }}"
+      },
+      "relations": {
+        "cluster": "{{ .inputs.cluster }}"
+      }
+    }
+  }
+}`,
+                output: 'Creates environment entity via Port API',
+                tags: ['action', 'create', 'entity', 'webhook']
+            },
+            {
+                id: 'act-approval',
+                category: 'actions',
+                title: 'Action with Approval',
+                problem: 'Require approval before execution',
+                description: 'Action requiring manual approval from specified users/teams.',
+                code: `{
+  "identifier": "promote_to_prod",
+  "title": "Promote to Production",
+  "trigger": {
+    "type": "self-service",
+    "operation": "DAY-2",
+    "blueprintIdentifier": "service"
+  },
+  "requiredApproval": {
+    "type": "ANY",
+    "approvers": {
+      "users": ["admin@company.com"],
+      "teams": ["platform-team"]
     }
   },
   "invocationMethod": {
     "type": "GITHUB",
     "org": "<YOUR_ORG>",
     "repo": "<YOUR_REPO>",
-    "workflow": "deploy.yml",
-    "workflowInputs": {
-      "service": "{{.entity.identifier}}",
-      "environment": "{{.inputs.environment}}",
-      "version": "{{.inputs.version}}",
-      "dry_run": "{{.inputs.dry_run}}",
-      "port_run_id": "{{.run.id}}",
-      "triggered_by": "{{.trigger.by.user.email}}"
-    }
+    "workflow": "promote.yml"
   }
 }`,
-                output: `Action appears as "🚀 Deploy Service" button on service entities.
-User selects environment, enters version → triggers deploy.yml with inputs.
-Port tracks run status until workflow reports back.`,
-                tags: ['action', 'self-service', 'github', 'deployment']
+                output: 'Requires 1 approval from admin or platform-team',
+                tags: ['action', 'approval', 'governance', 'production']
             },
             {
+                id: 'act-webhook',
                 category: 'actions',
-                title: 'Action with Dynamic Entity Selection',
-                problem: 'Need dropdown that lists entities from another blueprint',
-                description: 'Input that lets user select from existing entities, with optional filtering.',
+                title: 'Webhook Action',
+                problem: 'Trigger external systems via HTTP',
+                description: 'Action that calls any HTTP endpoint with custom payload.',
                 code: `{
-  "identifier": "link_service_to_cluster",
-  "title": "Link to Cluster",
+  "identifier": "trigger_pipeline",
+  "title": "Trigger CI Pipeline",
   "trigger": {
     "type": "self-service",
-    "blueprintIdentifier": "service",
-    "userInputs": {
-      "properties": {
-        "target_cluster": {
-          "type": "string",
-          "title": "Target Cluster",
-          "format": "entity",
-          "blueprint": "cluster",
-          "description": "Select destination cluster"
-        },
-        "namespace": {
-          "type": "string",
-          "title": "Namespace",
-          "format": "entity",
-          "blueprint": "namespace",
-          "dataset": {
-            "combinator": "and",
-            "rules": [
-              {
-                "property": "$relation.cluster",
-                "operator": "=",
-                "value": "{{.inputs.target_cluster}}"
-              }
-            ]
-          },
-          "dependsOn": ["target_cluster"]
-        }
-      },
-      "required": ["target_cluster", "namespace"]
-    }
+    "operation": "DAY-2",
+    "blueprintIdentifier": "service"
   },
   "invocationMethod": {
     "type": "WEBHOOK",
-    "url": "https://<YOUR_DOMAIN>/api/link-cluster"
-  }
-}`,
-                output: `Action UI shows:
-1. "Target Cluster" dropdown → lists all cluster entities
-2. "Namespace" dropdown → filters to show only namespaces 
-   related to selected cluster (via dependsOn + dataset)`,
-                tags: ['action', 'entity-selection', 'dynamic', 'dependent-inputs']
-            },
-            {
-                category: 'actions',
-                title: 'Create Entity Action',
-                problem: 'Scaffold a new service from scratch',
-                description: 'Action not tied to existing entity, creates new entity on completion.',
-                code: `{
-  "identifier": "scaffold_service",
-  "title": "🆕 Create New Service",
-  "icon": "Plus",
-  "trigger": {
-    "type": "self-service",
-    "operation": "CREATE",
-    "blueprintIdentifier": "service",
-    "userInputs": {
-      "properties": {
-        "name": {
-          "type": "string",
-          "title": "Service Name",
-          "pattern": "^[a-z][a-z0-9-]{2,30}$",
-          "description": "Lowercase, alphanumeric, hyphens only"
-        },
-        "language": {
-          "type": "string",
-          "title": "Language",
-          "enum": ["python", "go", "nodejs", "java"]
-        },
-        "template": {
-          "type": "string",
-          "title": "Template",
-          "enum": ["basic-api", "graphql-api", "worker", "cron-job"],
-          "default": "basic-api"
-        },
-        "domain": {
-          "type": "string",
-          "title": "Domain",
-          "format": "entity",
-          "blueprint": "domain"
-        }
-      },
-      "required": ["name", "language", "domain"]
-    }
-  },
-  "invocationMethod": {
-    "type": "GITHUB",
-    "org": "<YOUR_ORG>",
-    "repo": "service-scaffolder",
-    "workflow": "scaffold.yml",
-    "workflowInputs": {
-      "service_name": "{{.inputs.name}}",
-      "language": "{{.inputs.language}}",
-      "template": "{{.inputs.template}}",
-      "domain": "{{.inputs.domain.identifier}}",
-      "owner_email": "{{.trigger.by.user.email}}",
-      "port_run_id": "{{.run.id}}"
-    }
-  }
-}`,
-                output: `Action available from "Service" catalog page (not on specific entity).
-Workflow scaffolds repo, then upserts entity:
-POST /blueprints/service/entities?upsert=true
-{
-  "identifier": "my-new-service",
-  "properties": { "language": "python", ... },
-  "relations": { "domain": "payments" }
-}`,
-                tags: ['action', 'create', 'scaffold', 'day-0']
-            },
-            {
-                category: 'actions',
-                title: 'Action with Approval',
-                problem: 'Require approval before production changes',
-                description: 'Gate dangerous actions behind team approval with conditions.',
-                code: `{
-  "identifier": "delete_service",
-  "title": "🗑️ Delete Service",
-  "icon": "Trash",
-  "trigger": {
-    "type": "self-service",
-    "blueprintIdentifier": "service",
-    "operation": "DELETE",
-    "userInputs": {
-      "properties": {
-        "confirm_name": {
-          "type": "string",
-          "title": "Type service name to confirm",
-          "description": "Must match exactly"
-        },
-        "reason": {
-          "type": "string",
-          "title": "Reason for deletion",
-          "format": "markdown"
-        }
-      },
-      "required": ["confirm_name", "reason"]
+    "url": "https://api.example.com/pipelines",
+    "method": "POST",
+    "headers": {
+      "Authorization": "Bearer {{ .secrets.PIPELINE_TOKEN }}",
+      "Content-Type": "application/json"
     },
-    "condition": {
-      "type": "JQ",
-      "expressions": [".inputs.confirm_name == .entity.identifier"],
-      "combinator": "and"
+    "body": {
+      "service": "{{ .entity.identifier }}",
+      "branch": "{{ .inputs.branch }}",
+      "triggered_by": "{{ .trigger.by.user.email }}"
     }
-  },
-  "requiredApproval": {
-    "type": "ANY",
-    "approvers": {
-      "users": [],
-      "teams": ["platform-admins", "{{.entity.properties.owning_team}}"]
-    }
-  },
-  "invocationMethod": {
-    "type": "GITHUB",
-    "org": "<YOUR_ORG>",
-    "repo": "service-lifecycle",
-    "workflow": "delete-service.yml"
   }
 }`,
-                output: `Flow:
-1. User fills form, must type service name correctly (condition validates)
-2. Request goes to pending approval
-3. Platform admin OR owning team member approves
-4. Workflow executes deletion`,
-                tags: ['action', 'approval', 'rbac', 'delete', 'dangerous']
+                output: 'POSTs to external API with entity context',
+                tags: ['action', 'webhook', 'http', 'integration']
             },
-            {
-                category: 'actions',
-                title: 'GitHub Workflow with Status Reporting',
-                problem: 'Keep Port run status in sync with workflow progress',
-                description: 'Complete workflow pattern with progress updates, success/failure handling, and links.',
-                code: `name: Deploy Service
-on:
-  workflow_dispatch:
-    inputs:
-      service:
-        required: true
-      environment:
-        required: true
-      version:
-        required: true
-      port_run_id:
-        required: true
-
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Inform Port - Starting
-        uses: port-labs/port-github-action@v1
-        with:
-          clientId: \${{ secrets.PORT_CLIENT_ID }}
-          clientSecret: \${{ secrets.PORT_CLIENT_SECRET }}
-          operation: PATCH_RUN
-          runId: \${{ inputs.port_run_id }}
-          status: RUNNING
-          logMessage: |
-            🚀 Starting deployment
-            Service: \${{ inputs.service }}
-            Version: \${{ inputs.version }}
-            Environment: \${{ inputs.environment }}
-
-      - name: Deploy
-        id: deploy
-        run: |
-          # Your deployment logic here
-          echo "Deploying \${{ inputs.service }} version \${{ inputs.version }}"
-          kubectl set image deployment/\${{ inputs.service }} \\
-            app=ghcr.io/\${{ github.repository_owner }}/\${{ inputs.service }}:\${{ inputs.version }} \\
-            -n \${{ inputs.environment }}
-          kubectl rollout status deployment/\${{ inputs.service }} -n \${{ inputs.environment }}
-
-      - name: Inform Port - Success
-        if: success()
-        uses: port-labs/port-github-action@v1
-        with:
-          clientId: \${{ secrets.PORT_CLIENT_ID }}
-          clientSecret: \${{ secrets.PORT_CLIENT_SECRET }}
-          operation: PATCH_RUN
-          runId: \${{ inputs.port_run_id }}
-          status: SUCCESS
-          logMessage: "✅ Deployment completed successfully"
-          summary: "Deployed \${{ inputs.version }} to \${{ inputs.environment }}"
-          link: '["https://argocd.<YOUR_DOMAIN>/applications/\${{ inputs.service }}-\${{ inputs.environment }}"]'
-
-      - name: Inform Port - Failure
-        if: failure()
-        uses: port-labs/port-github-action@v1
-        with:
-          clientId: \${{ secrets.PORT_CLIENT_ID }}
-          clientSecret: \${{ secrets.PORT_CLIENT_SECRET }}
-          operation: PATCH_RUN
-          runId: \${{ inputs.port_run_id }}
-          status: FAILURE
-          logMessage: "❌ Deployment failed"
-          summary: "Failed to deploy \${{ inputs.version }} to \${{ inputs.environment }}. Check workflow logs."
-          link: '["https://github.com/\${{ github.repository }}/actions/runs/\${{ github.run_id }}"]'`,
-                output: `Port run shows real-time progress:
-1. "🚀 Starting deployment..." (RUNNING)
-2. "✅ Deployment completed" (SUCCESS)
-   - Summary: "Deployed v1.2.3 to production"
-   - Link: ArgoCD application URL
-
-Or on failure:
-2. "❌ Deployment failed" (FAILURE)
-   - Link: GitHub Actions run for debugging`,
-                tags: ['action', 'github-actions', 'workflow', 'status']
-            },
-
             // ==================== SCORECARDS ====================
             {
+                id: 'sc-prod-ready',
                 category: 'scorecards',
                 title: 'Production Readiness Scorecard',
-                problem: 'Enforce and visualize service maturity standards',
-                description: 'Multi-level scorecard with Bronze/Silver/Gold progression.',
+                problem: 'Measure if services meet production standards',
+                description: 'Multi-level scorecard checking documentation, monitoring, and security.',
                 code: `{
   "identifier": "production_readiness",
   "title": "Production Readiness",
   "blueprint": "service",
+  "levels": [
+    { "title": "Bronze", "color": "bronze" },
+    { "title": "Silver", "color": "silver" },
+    { "title": "Gold", "color": "gold" }
+  ],
   "rules": [
     {
-      "identifier": "has_owner",
-      "title": "Has designated owner",
+      "identifier": "has_readme",
+      "title": "Has README",
       "level": "Bronze",
       "query": {
         "combinator": "and",
         "conditions": [
-          { "operator": "isNotEmpty", "property": "owner" }
+          { "property": "readme_url", "operator": "isNotEmpty" }
         ]
       }
     },
     {
-      "identifier": "has_description",
-      "title": "Has description",
-      "level": "Bronze",
-      "query": {
-        "combinator": "and",
-        "conditions": [
-          { "operator": "isNotEmpty", "property": "description" }
-        ]
-      }
-    },
-    {
-      "identifier": "has_runbook",
-      "title": "Runbook documented",
+      "identifier": "has_monitoring",
+      "title": "Monitoring Configured",
       "level": "Silver",
       "query": {
         "combinator": "and",
         "conditions": [
-          { "operator": "isNotEmpty", "property": "runbook_url" }
+          { "property": "grafana_dashboard", "operator": "isNotEmpty" },
+          { "property": "pagerduty_service", "operator": "isNotEmpty" }
         ]
       }
     },
     {
-      "identifier": "has_oncall",
-      "title": "On-call configured",
-      "level": "Silver",
-      "query": {
-        "combinator": "and",
-        "conditions": [
-          { "operator": "=", "property": "pagerduty_enabled", "value": true }
-        ]
-      }
-    },
-    {
-      "identifier": "high_test_coverage",
-      "title": "Test coverage > 80%",
+      "identifier": "security_scan",
+      "title": "Security Scan Passing",
       "level": "Gold",
       "query": {
         "combinator": "and",
         "conditions": [
-          { "operator": ">=", "property": "test_coverage", "value": 80 }
-        ]
-      }
-    },
-    {
-      "identifier": "no_critical_vulns",
-      "title": "No critical vulnerabilities",
-      "level": "Gold",
-      "query": {
-        "combinator": "and",
-        "conditions": [
-          { "operator": "=", "property": "$aggregation.critical_vulns_count", "value": 0 }
+          { "property": "security_score", "operator": ">=", "value": 80 }
         ]
       }
     }
   ]
 }`,
-                output: `Service scorecard displays:
-🥉 Bronze: 2/2 (has_owner ✓, has_description ✓)
-🥈 Silver: 1/2 (has_runbook ✓, has_oncall ✗)
-🥇 Gold: 0/2 (blocked by Silver)
-
-Overall Level: Silver (67%)`,
-                tags: ['scorecard', 'compliance', 'maturity', 'production-readiness']
+                output: 'Services progress Bronze → Silver → Gold',
+                tags: ['scorecard', 'production', 'readiness', 'levels']
             },
             {
+                id: 'sc-time-based',
                 category: 'scorecards',
-                title: 'Time-Based Freshness Rules',
-                problem: 'Ensure services are actively maintained',
-                description: 'Rules based on date comparisons for deployment freshness, dependency updates, etc.',
+                title: 'Time-Based Rule',
+                problem: 'Check if property was updated recently',
+                description: 'Scorecard rule checking property freshness with date comparison.',
                 code: `{
-  "identifier": "operational_health",
-  "title": "Operational Health",
+  "rules": [
+    {
+      "identifier": "recent_deploy",
+      "title": "Deployed in Last 30 Days",
+      "level": "Silver",
+      "query": {
+        "combinator": "and",
+        "conditions": [
+          {
+            "property": "last_deployed_at",
+            "operator": "between",
+            "value": {
+              "preset": "lastMonth"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "identifier": "not_stale",
+      "title": "Not Stale (updated in 90 days)",
+      "level": "Bronze",
+      "query": {
+        "combinator": "and",
+        "conditions": [
+          {
+            "property": "$updatedAt",
+            "operator": ">=",
+            "value": {
+              "jqQuery": "now - (90 * 24 * 60 * 60) | todateiso8601"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}`,
+                output: 'Passes if deployed within 30 days',
+                tags: ['scorecard', 'time', 'date', 'freshness']
+            },
+            {
+                id: 'sc-mirror',
+                category: 'scorecards',
+                title: 'Scorecard on Mirror Property',
+                problem: 'Score based on related entity data',
+                description: 'Use mirror properties in scorecard rules to check related entity values.',
+                code: `{
+  "identifier": "team_compliance",
+  "title": "Team Compliance",
   "blueprint": "service",
   "rules": [
     {
-      "identifier": "deployed_last_30_days",
-      "title": "Deployed in last 30 days",
+      "identifier": "team_has_oncall",
+      "title": "Team Has On-Call Rotation",
       "level": "Bronze",
       "query": {
         "combinator": "and",
         "conditions": [
           {
-            "operator": "between",
-            "property": "last_deployed",
-            "value": { "preset": "lastMonth" }
+            "property": "$team.pagerduty_schedule",
+            "operator": "isNotEmpty"
           }
         ]
       }
     },
     {
-      "identifier": "deps_updated_quarterly",
-      "title": "Dependencies updated in last 90 days",
+      "identifier": "team_size_ok",
+      "title": "Team Has 3+ Members",
       "level": "Silver",
       "query": {
         "combinator": "and",
         "conditions": [
           {
-            "operator": "between",
-            "property": "dependencies_updated_at",
-            "value": { "preset": "last3Months" }
-          }
-        ]
-      }
-    },
-    {
-      "identifier": "no_stale_prs",
-      "title": "No PRs older than 14 days",
-      "level": "Gold",
-      "query": {
-        "combinator": "and",
-        "conditions": [
-          {
-            "operator": "=",
-            "property": "$aggregation.stale_pr_count",
-            "value": 0
+            "property": "$team.member_count",
+            "operator": ">=",
+            "value": 3
           }
         ]
       }
     }
   ]
 }`,
-                output: `Available presets for "between" operator:
-- today, yesterday
-- lastWeek, lastMonth, last3Months, last6Months, lastYear
-- thisWeek, thisMonth, thisQuarter, thisYear
-
-Rule passes if property date falls within preset range.`,
-                tags: ['scorecard', 'time-based', 'freshness', 'date']
+                output: 'Checks team properties via relation',
+                tags: ['scorecard', 'mirror', 'relation', 'team']
             },
-            {
-                category: 'scorecards',
-                title: 'Mirror Property Rules',
-                problem: 'Validate based on related entity properties',
-                description: 'Use $mirror to check properties from parent/related entities.',
-                code: `{
-  "identifier": "security_compliance",
-  "title": "Security Compliance",
-  "blueprint": "service",
-  "rules": [
-    {
-      "identifier": "team_has_security_champion",
-      "title": "Team has security champion",
-      "level": "Silver",
-      "query": {
-        "combinator": "and",
-        "conditions": [
-          {
-            "operator": "isNotEmpty",
-            "property": "$mirror.owning_team.security_champion"
-          }
-        ]
-      }
-    },
-    {
-      "identifier": "domain_soc2_compliant",
-      "title": "Domain is SOC2 compliant",
-      "level": "Gold",
-      "query": {
-        "combinator": "and",
-        "conditions": [
-          {
-            "operator": "=",
-            "property": "$mirror.domain.soc2_certified",
-            "value": true
-          }
-        ]
-      }
-    },
-    {
-      "identifier": "cluster_is_hardened",
-      "title": "Running on hardened cluster",
-      "level": "Gold",
-      "query": {
-        "combinator": "and",
-        "conditions": [
-          {
-            "operator": "containsAny",
-            "property": "$mirror.cluster.security_features",
-            "value": ["network-policies", "pod-security-admission"]
-          }
-        ]
-      }
-    }
-  ]
-}`,
-                output: `Rule evaluates related entity properties:
-- Checks owning_team.security_champion (1 hop)
-- Checks domain.soc2_certified (1 hop)
-- Checks cluster.security_features array (via deployment relation)
-
-Service inherits compliance posture from its ecosystem.`,
-                tags: ['scorecard', 'mirror', 'security', 'compliance', 'relations']
-            },
-
             // ==================== AUTOMATIONS ====================
             {
+                id: 'auto-created',
                 category: 'automations',
-                title: 'Entity Created Automation',
-                problem: 'Trigger onboarding workflow when new service is added',
-                description: 'React to ENTITY_CREATED events with optional JQ conditions.',
+                title: 'Entity Created Trigger',
+                problem: 'Take action when new entity appears',
+                description: 'Automation that fires when an entity is created.',
                 code: `{
-  "identifier": "new_service_onboarding",
-  "title": "New Service Onboarding",
+  "identifier": "notify_new_service",
+  "title": "Notify on New Service",
   "trigger": {
     "type": "automation",
     "event": {
       "type": "ENTITY_CREATED",
       "blueprintIdentifier": "service"
-    },
-    "condition": {
-      "type": "JQ",
-      "expressions": [
-        ".diff.after.properties.language == \"Python\"",
-        ".diff.after.properties.tier <= 2"
-      ],
-      "combinator": "and"
     }
   },
   "invocationMethod": {
-    "type": "GITHUB",
-    "org": "<YOUR_ORG>",
-    "repo": "platform-automation",
-    "workflow": "onboard-service.yml",
-    "workflowInputs": {
-      "service_id": "{{.event.diff.after.identifier}}",
-      "service_name": "{{.event.diff.after.title}}",
-      "language": "{{.event.diff.after.properties.language}}",
-      "owner": "{{.event.diff.after.properties.owner}}",
-      "tier": "{{.event.diff.after.properties.tier}}"
+    "type": "WEBHOOK",
+    "url": "https://hooks.slack.com/services/XXX/YYY/ZZZ",
+    "method": "POST",
+    "body": {
+      "text": "New service created: {{ .event.context.entityIdentifier }} by {{ .event.context.user.email }}"
     }
   }
 }`,
-                output: `Triggers when:
-1. New service entity created
-2. Language is "Python" AND tier is 1 or 2
-
-Workflow receives entity data to:
-- Set up monitoring dashboards
-- Configure CI/CD templates
-- Create Slack channel
-- Add to on-call rotation`,
-                tags: ['automation', 'entity-created', 'onboarding', 'trigger']
+                output: 'Posts to Slack when service created',
+                tags: ['automation', 'created', 'webhook', 'slack']
             },
             {
+                id: 'auto-updated',
                 category: 'automations',
-                title: 'Property Changed Automation',
-                problem: 'React when specific property changes (e.g., promoted to production)',
-                description: 'Detect property value changes using diff comparison.',
+                title: 'Entity Updated Trigger',
+                problem: 'React to property changes',
+                description: 'Automation with conditions that fires only on specific changes.',
                 code: `{
-  "identifier": "production_promotion_alert",
-  "title": "Production Promotion Alert",
+  "identifier": "sync_on_version_change",
+  "title": "Sync on Version Change",
   "trigger": {
     "type": "automation",
     "event": {
@@ -1521,666 +858,523 @@ Workflow receives entity data to:
     "condition": {
       "type": "JQ",
       "expressions": [
-        ".diff.before.properties.environment != \"production\"",
-        ".diff.after.properties.environment == \"production\""
+        ".diff.before.properties.version != .diff.after.properties.version"
+      ],
+      "combinator": "and"
+    }
+  },
+  "invocationMethod": {
+    "type": "GITHUB",
+    "org": "<YOUR_ORG>",
+    "repo": "<YOUR_REPO>",
+    "workflow": "sync.yml",
+    "workflowInputs": {
+      "service": "{{ .event.context.entityIdentifier }}",
+      "old_version": "{{ .event.diff.before.properties.version }}",
+      "new_version": "{{ .event.diff.after.properties.version }}"
+    }
+  }
+}`,
+                output: 'Triggers only when version property changes',
+                tags: ['automation', 'updated', 'diff', 'condition']
+            },
+            {
+                id: 'auto-timer',
+                category: 'automations',
+                title: 'Timer/Cron Trigger',
+                problem: 'Run automation on schedule',
+                description: 'Time-based automation using cron expression.',
+                code: `{
+  "identifier": "daily_stale_check",
+  "title": "Daily Stale Service Check",
+  "trigger": {
+    "type": "automation",
+    "event": {
+      "type": "TIMER_PROPERTY_EXPIRED",
+      "blueprintIdentifier": "service",
+      "propertyIdentifier": "next_review_date"
+    }
+  },
+  "invocationMethod": {
+    "type": "WEBHOOK",
+    "url": "https://api.example.com/reviews/remind",
+    "method": "POST",
+    "body": {
+      "service": "{{ .event.context.entityIdentifier }}",
+      "owner": "{{ .event.context.entity.relations.team }}"
+    }
+  }
+}`,
+                output: 'Fires when next_review_date passes',
+                tags: ['automation', 'timer', 'cron', 'schedule']
+            },
+            {
+                id: 'auto-scorecard',
+                category: 'automations',
+                title: 'Scorecard Change Trigger',
+                problem: 'React when scorecard level changes',
+                description: 'Automation that fires when scorecard level increases or decreases.',
+                code: `{
+  "identifier": "celebrate_gold",
+  "title": "Celebrate Gold Achievement",
+  "trigger": {
+    "type": "automation",
+    "event": {
+      "type": "ENTITY_UPDATED",
+      "blueprintIdentifier": "service"
+    },
+    "condition": {
+      "type": "JQ",
+      "expressions": [
+        ".diff.after.scorecards.production_readiness.level == \"Gold\"",
+        ".diff.before.scorecards.production_readiness.level != \"Gold\""
       ],
       "combinator": "and"
     }
   },
   "invocationMethod": {
     "type": "WEBHOOK",
-    "url": "https://hooks.slack.com/services/<YOUR_WEBHOOK>",
+    "url": "https://hooks.slack.com/services/XXX",
     "method": "POST",
     "body": {
-      "channel": "#platform-alerts",
-      "username": "Port.io",
-      "icon_emoji": ":rocket:",
-      "blocks": [
-        {
-          "type": "header",
-          "text": {
-            "type": "plain_text",
-            "text": "🚀 Service Promoted to Production"
-          }
-        },
-        {
-          "type": "section",
-          "fields": [
-            { "type": "mrkdwn", "text": "*Service:*\\n{{.event.diff.after.title}}" },
-            { "type": "mrkdwn", "text": "*Owner:*\\n{{.event.diff.after.properties.owner}}" }
-          ]
-        },
-        {
-          "type": "actions",
-          "elements": [
-            {
-              "type": "button",
-              "text": { "type": "plain_text", "text": "View in Port" },
-              "url": "https://app.getport.io/serviceEntity/{{.event.diff.after.identifier}}"
-            }
-          ]
-        }
-      ]
+      "text": "🏆 {{ .event.context.entityIdentifier }} achieved Gold production readiness!"
     }
   }
 }`,
-                output: `Slack message sent when service.environment changes 
-from anything → "production":
-
-┌────────────────────────────────────┐
-│ 🚀 Service Promoted to Production  │
-├────────────────────────────────────┤
-│ Service: checkout-api              │
-│ Owner: alice@company.com           │
-│ [View in Port]                     │
-└────────────────────────────────────┘`,
-                tags: ['automation', 'entity-updated', 'slack', 'notification', 'property-change']
+                output: 'Posts to Slack when service reaches Gold',
+                tags: ['automation', 'scorecard', 'level', 'celebration']
             },
+            // ==================== JQ ====================
             {
-                category: 'automations',
-                title: 'Timer/Cron Automation',
-                problem: 'Run scheduled tasks (cleanup, reports, syncs)',
-                description: 'Trigger automations on a schedule using cron expressions.',
-                code: `{
-  "identifier": "weekly_compliance_report",
-  "title": "Weekly Compliance Report",
-  "trigger": {
-    "type": "automation",
-    "event": {
-      "type": "TIMER",
-      "interval": {
-        "type": "CRON",
-        "expression": "0 9 * * 1"
-      }
-    }
-  },
-  "invocationMethod": {
-    "type": "WEBHOOK",
-    "url": "https://<YOUR_DOMAIN>/api/compliance-report",
-    "method": "POST",
-    "headers": {
-      "Authorization": "Bearer {{.secrets.REPORT_API_TOKEN}}",
-      "Content-Type": "application/json"
-    },
-    "body": {
-      "report_type": "weekly_compliance",
-      "triggered_at": "{{.event.trigger.at}}"
-    }
-  }
-}`,
-                output: `Common cron expressions:
-- "0 9 * * 1"      → Monday 9am
-- "0 0 * * *"      → Daily midnight
-- "0 */6 * * *"    → Every 6 hours
-- "0 9 1 * *"      → First of month 9am
-- "0 9 * * 1-5"    → Weekdays 9am
-
-Time is UTC. Use crontab.guru to build expressions.`,
-                tags: ['automation', 'timer', 'cron', 'scheduled']
-            },
-            {
-                category: 'automations',
-                title: 'Scorecard Rule Failed Automation',
-                problem: 'Auto-create Jira tickets when compliance rules fail',
-                description: 'React to scorecard rule failures with ticket creation.',
-                code: `{
-  "identifier": "compliance_ticket_on_failure",
-  "title": "Create Compliance Ticket",
-  "trigger": {
-    "type": "automation",
-    "event": {
-      "type": "SCORECARD_RULE_FAILED",
-      "scorecard": "production_readiness",
-      "rule": "has_runbook"
-    }
-  },
-  "invocationMethod": {
-    "type": "WEBHOOK",
-    "url": "https://<YOUR_JIRA>/rest/api/2/issue",
-    "method": "POST",
-    "headers": {
-      "Authorization": "Basic {{.secrets.JIRA_AUTH}}",
-      "Content-Type": "application/json"
-    },
-    "body": {
-      "fields": {
-        "project": { "key": "PLAT" },
-        "issuetype": { "name": "Task" },
-        "summary": "[Compliance] {{.event.context.entity.title}} - Missing Runbook",
-        "description": "Service *{{.event.context.entity.identifier}}* failed the 'has_runbook' rule in the Production Readiness scorecard.\\n\\n*Action Required:* Add a runbook URL to the service.\\n\\n[View in Port|https://app.getport.io/service/{{.event.context.entity.identifier}}]",
-        "assignee": { "emailAddress": "{{.event.context.entity.properties.owner}}" },
-        "labels": ["port-automation", "compliance", "runbook"]
-      }
-    }
-  }
-}`,
-                output: `When service fails "has_runbook" rule:
-1. Jira ticket created automatically
-2. Assigned to service owner
-3. Links back to Port entity
-
-Closes the loop: Port tracks → detects gap → creates work item`,
-                tags: ['automation', 'scorecard', 'jira', 'compliance', 'ticket']
-            },
-
-            // ==================== JQ PATTERNS ====================
-            {
+                id: 'jq-defaults',
                 category: 'jq',
-                title: 'Property Access & Defaults',
-                problem: 'Safely access properties that might be null/missing',
-                description: 'Handle missing data with fallbacks and optional chaining.',
-                code: `# Null coalescing - use default if null
-.properties.owner // "unassigned"
+                title: 'Default Values',
+                problem: 'Handle null/missing fields safely',
+                description: 'JQ patterns for providing fallback values.',
+                code: `# Alternative operator (if null or false)
+.properties.replicas // 1
 
-# Nested access with fallback
-.properties.config.timeout // 30
+# Empty string fallback
+.properties.description // ""
 
-# Alternative/empty fallback
-.properties.tags // []
+# Nested with default
+.metadata.labels.app // .metadata.name // "unknown"
 
-# Check existence before access
-if .properties.config then .properties.config.timeout else 30 end
+# Type-safe default (only if null)
+if .properties.count == null then 0 else .properties.count end
 
-# Multiple fallback chain
-.properties.primary_owner // .properties.owner // .properties.team // "unknown"
-
-# Safe array access
-.properties.endpoints[0].url // "no endpoints"
-
-# Conditional with type check
-if (.properties.replicas | type) == "number" then .properties.replicas else 1 end`,
-                output: `Given entity:
-{ "properties": { "owner": null, "tags": ["api"] } }
-
-.properties.owner // "unassigned"  → "unassigned"
-.properties.tags // []             → ["api"]
-.properties.missing // "default"   → "default"`,
-                tags: ['jq', 'null', 'default', 'safe-access']
+# Default for missing key
+(.properties.tags // []) | join(",")`,
+                output: 'Returns fallback when value is null/missing',
+                tags: ['jq', 'default', 'null', 'fallback']
             },
             {
+                id: 'jq-strings',
                 category: 'jq',
-                title: 'String Operations',
-                problem: 'Transform, combine, and extract from strings',
-                description: 'Common string manipulations for identifiers and display names.',
-                code: `# Convert case
-.name | ascii_downcase                    # "MyService" → "myservice"
-.name | ascii_upcase                      # "MyService" → "MYSERVICE"
+                title: 'String Manipulation',
+                problem: 'Transform strings in mappings',
+                description: 'Common JQ string operations.',
+                code: `# Concatenation
+.namespace + "-" + .name
 
-# Replace characters
-.name | gsub("-"; "_")                    # "my-service" → "my_service"
-.name | gsub("[^a-zA-Z0-9]"; "-")         # "my.service@v1" → "my-service-v1"
+# Interpolation
+"service-\\(.metadata.name)-\\(.metadata.namespace)"
+
+# Case conversion
+.name | ascii_downcase
+.name | ascii_upcase
 
 # Split and join
-.name | split("-")                        # "my-service" → ["my", "service"]
-.name | split("-") | join("_")            # "my-service" → "my_service"
+.image | split(":") | .[0]              # Get image name without tag
+.tags | join(", ")                       # Array to comma-separated
 
-# Extract parts
-.name | split("-")[0]                     # "my-service-api" → "my"
-.name | split("-")[1:]                    # "my-service-api" → ["service", "api"]
-.name | split("-")[-1]                    # "my-service-api" → "api"
+# Replace
+.url | gsub("http://"; "https://")
 
-# String interpolation
-"https://\\(.identifier).company.com"     # → "https://my-service.company.com"
-
-# Substring/slice
-.name[0:3]                                # "myservice" → "mys"
-.name | .[0:1] | ascii_upcase             # "myservice" → "M"
-
-# Test/match
-.name | test("^svc-")                     # "svc-api" → true
-.name | startswith("svc-")                # "svc-api" → true
-.name | endswith("-api")                  # "svc-api" → true
-
-# Title case (first letter uppercase)
-.name | split("-") | map(.[0:1] | ascii_upcase + .[1:]) | join(" ")
-# "my-service" → "My Service"`,
-                output: `Building identifiers:
-(.metadata.namespace + "-" + .metadata.name)
-→ "production-checkout-api"
-
-Display name from identifier:
-.identifier | split("-") | map(.[0:1] | ascii_upcase + .[1:]) | join(" ")
-→ "Checkout Api"`,
-                tags: ['jq', 'string', 'transform', 'case']
+# Regex extract
+.image | capture("(?<repo>.*):(?<tag>.*)") | .tag`,
+                output: 'Various string transformations',
+                tags: ['jq', 'string', 'concat', 'split', 'regex']
             },
             {
+                id: 'jq-arrays',
                 category: 'jq',
                 title: 'Array Operations',
-                problem: 'Filter, transform, and aggregate arrays',
-                description: 'Work with lists of tags, containers, dependencies, etc.',
-                code: `# Filter array items
-[.tags[] | select(. != "internal")]                    # Remove "internal" tag
-[.tags[] | select(startswith("env-"))]                 # Only "env-*" tags
-[.containers[] | select(.name != "sidecar")]           # Exclude sidecar
+                problem: 'Filter and transform arrays',
+                description: 'JQ patterns for working with arrays.',
+                code: `# Filter array
+.items | map(select(.status == "active"))
 
-# Map/transform array
-[.tags[] | ascii_downcase]                             # Lowercase all tags
-[.containers[] | .name]                                # Extract container names
-[.items[] | {name: .metadata.name, ns: .metadata.namespace}]
+# Get first/last
+.containers | first
+.containers | last
 
-# Array contains
-.tags | contains(["production"])                       # Has "production" tag?
-.tags | any(. == "critical")                           # Any item is "critical"?
-.tags | all(startswith("team-"))                       # All start with "team-"?
+# Check if contains
+.tags | contains(["production"])
 
-# Find in array
-.containers[] | select(.name == "app") | .image        # Get app container image
-first(.items[] | select(.status == "ready"))           # First ready item
+# Check any/all
+[.rules[].passing] | all
+[.checks[].status] | any(. == "failed")
 
-# Array aggregation
-.items | length                                        # Count items
-[.items[].value] | add                                 # Sum values
-[.items[].score] | add / length                        # Average
+# Unique values
+[.pods[].status] | unique
 
-# Unique and sort
-.tags | unique                                         # Remove duplicates
-.tags | sort                                           # Sort alphabetically
-[.items[] | .priority] | unique | sort                 # Unique sorted priorities
+# Array length
+.replicas | length
 
-# Flatten nested arrays
-[.teams[].members[]] | unique                          # All members across teams`,
-                output: `Given: { "tags": ["API", "internal", "env-prod", "env-staging"] }
-
-[.tags[] | select(startswith("env-"))]
-→ ["env-prod", "env-staging"]
-
-[.tags[] | select(startswith("env-")) | split("-")[1]]
-→ ["prod", "staging"]`,
-                tags: ['jq', 'array', 'filter', 'map']
+# Flatten nested
+.spec.containers | map(.ports) | flatten`,
+                output: 'Filtered/transformed arrays',
+                tags: ['jq', 'array', 'filter', 'map', 'select']
             },
             {
+                id: 'jq-dates',
                 category: 'jq',
-                title: 'Date & Time Calculations',
-                problem: 'Calculate age, freshness, or time differences',
-                description: 'Work with ISO dates for freshness checks and age calculations.',
-                code: `# Current timestamp (Unix seconds)
-now                                                    # 1704067200
+                title: 'Date Handling',
+                problem: 'Work with timestamps and dates',
+                description: 'JQ date parsing and formatting.',
+                code: `# Current timestamp (ISO 8601)
+now | todateiso8601
 
-# Parse ISO date to Unix timestamp
-.created_at | fromdateiso8601                          # "2024-01-01T00:00:00Z" → 1704067200
+# Parse ISO date to epoch
+.created_at | fromdateiso8601
 
-# Format Unix timestamp to ISO
-now | todateiso8601                                    # → "2024-01-01T00:00:00Z"
+# Format epoch to readable
+.timestamp | strftime("%Y-%m-%d %H:%M:%S")
 
-# Seconds since a date
-now - (.last_deployed | fromdateiso8601)               # Seconds since deploy
+# Days since date
+((now - (.last_updated | fromdateiso8601)) / 86400) | floor
 
-# Days since a date
-((now - (.last_deployed | fromdateiso8601)) / 86400) | floor
+# Date comparison
+.expires_at | fromdateiso8601 > now
 
-# Hours since a date
-((now - (.updated_at | fromdateiso8601)) / 3600) | floor
-
-# Is older than X days?
-(now - (.created_at | fromdateiso8601)) > (30 * 86400) # Older than 30 days?
-
-# Safe date calculation (handle null)
-if .last_deployed then
-  ((now - (.last_deployed | fromdateiso8601)) / 86400) | floor
-else
-  null
-end
-
-# Compare two dates
-(.updated_at | fromdateiso8601) > (.created_at | fromdateiso8601)
-
-# Time constants (seconds)
-# 1 minute  = 60
-# 1 hour    = 3600
-# 1 day     = 86400
-# 1 week    = 604800
-# 30 days   = 2592000`,
-                output: `Given: { "last_deployed": "2024-01-15T10:30:00Z" }
-Now: 2024-01-20T10:30:00Z
-
-Days since deploy:
-((now - (.last_deployed | fromdateiso8601)) / 86400) | floor
-→ 5
-
-Is stale (>7 days)?
-(now - (.last_deployed | fromdateiso8601)) > (7 * 86400)
-→ false`,
-                tags: ['jq', 'date', 'time', 'age', 'freshness']
+# Add days to date
+(.created_at | fromdateiso8601) + (7 * 86400) | todateiso8601`,
+                output: 'Date calculations and formatting',
+                tags: ['jq', 'date', 'time', 'timestamp', 'iso8601']
             },
             {
+                id: 'jq-automation-cond',
                 category: 'jq',
-                title: 'Automation Condition Patterns',
-                problem: 'Build conditions for automation triggers',
-                description: 'Common patterns for detecting changes and filtering events.',
-                code: `# Property changed
+                title: 'Automation Conditions',
+                problem: 'Write complex automation trigger conditions',
+                description: 'JQ patterns for automation condition expressions.',
+                code: `# Check specific property changed
 .diff.before.properties.status != .diff.after.properties.status
 
-# Property changed TO specific value
-.diff.before.properties.env != "prod" and .diff.after.properties.env == "prod"
+# Check property changed to specific value
+.diff.after.properties.status == "deployed" and .diff.before.properties.status != "deployed"
 
-# Property changed FROM specific value
-.diff.before.properties.status == "active" and .diff.after.properties.status != "active"
+# Check scorecard level improved
+(.diff.after.scorecards.readiness.level == "Gold") and (.diff.before.scorecards.readiness.level != "Gold")
 
-# Any of multiple properties changed
-(.diff.before.properties.owner != .diff.after.properties.owner) or
-(.diff.before.properties.team != .diff.after.properties.team)
+# Check relation was added
+(.diff.after.relations.team != null) and (.diff.before.relations.team == null)
 
-# Relation added
-(.diff.before.relations.domain == null) and (.diff.after.relations.domain != null)
+# Check array property contains value
+.diff.after.properties.environments | contains(["production"])
 
-# Relation count increased
-(.diff.after.relations.dependencies | length) > (.diff.before.relations.dependencies | length)
-
-# New entity matches criteria
-.diff.after.properties.tier == 1 and .diff.after.properties.pagerduty_enabled == true
-
-# Exclude test entities
-.diff.after.identifier | startswith("test-") | not
-
-# Combined: prod + critical + not test
-.diff.after.properties.environment == "prod" and
-.diff.after.properties.critical == true and
-(.diff.after.identifier | startswith("test-") | not)`,
-                output: `Automation event structure:
-{
-  "event": {
-    "diff": {
-      "before": { "properties": {...}, "relations": {...} },
-      "after": { "properties": {...}, "relations": {...} }
-    }
-  }
-}
-
-Conditions evaluate against this structure.
-All expressions must return boolean.`,
-                tags: ['jq', 'automation', 'condition', 'trigger', 'diff']
+# Combined conditions
+(.diff.after.properties.is_production == true) and (.diff.after.scorecards.security.level != "Gold")`,
+                output: 'Boolean expression for automation trigger',
+                tags: ['jq', 'automation', 'condition', 'diff', 'trigger']
             },
-
             // ==================== API ====================
             {
+                id: 'api-auth',
                 category: 'api',
-                title: 'Authentication',
-                problem: 'Get access token to call Port API',
+                title: 'API Authentication',
+                problem: 'Get access token for Port API',
                 description: 'Exchange client credentials for JWT token.',
                 code: `# Get access token
-curl -X POST "https://api.getport.io/v1/auth/access_token" \\
+curl -s -X POST "https://api.getport.io/v1/auth/access_token" \\
   -H "Content-Type: application/json" \\
   -d '{
-    "clientId": "<YOUR_CLIENT_ID>",
-    "clientSecret": "<YOUR_CLIENT_SECRET>"
-  }'
+    "clientId": "'$PORT_CLIENT_ID'",
+    "clientSecret": "'$PORT_CLIENT_SECRET'"
+  }' | jq -r '.accessToken'
 
-# Response contains accessToken (valid ~1 hour)
-# Use in subsequent requests:
-# -H "Authorization: Bearer <accessToken>"
+# Use in subsequent requests
+export TOKEN=$(curl -s -X POST "https://api.getport.io/v1/auth/access_token" \\
+  -H "Content-Type: application/json" \\
+  -d '{"clientId":"'$PORT_CLIENT_ID'","clientSecret":"'$PORT_CLIENT_SECRET'"}' \\
+  | jq -r '.accessToken')
 
-# Shell script pattern
-get_port_token() {
-  curl -s -X POST "https://api.getport.io/v1/auth/access_token" \\
-    -H "Content-Type: application/json" \\
-    -d "{
-      \\"clientId\\": \\"$PORT_CLIENT_ID\\",
-      \\"clientSecret\\": \\"$PORT_CLIENT_SECRET\\"
-    }" | jq -r '.accessToken'
-}
-
-TOKEN=$(get_port_token)
-curl -H "Authorization: Bearer $TOKEN" ...`,
-                output: `Response:
-{
-  "accessToken": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...",
-  "expiresIn": 3600,
-  "tokenType": "Bearer"
-}
-
-Token valid for 1 hour. Cache and refresh as needed.`,
-                tags: ['api', 'auth', 'token', 'credentials']
+curl -H "Authorization: Bearer $TOKEN" \\
+  "https://api.getport.io/v1/blueprints"`,
+                output: 'Returns JWT token valid for 24 hours',
+                tags: ['api', 'auth', 'token', 'curl']
             },
             {
+                id: 'api-crud',
                 category: 'api',
                 title: 'Entity CRUD Operations',
-                problem: 'Create, read, update, delete entities via API',
-                description: 'Core entity operations with upsert pattern.',
-                code: `# CREATE or UPDATE (upsert) - recommended pattern
-curl -X POST "https://api.getport.io/v1/blueprints/service/entities?upsert=true&merge=true" \\
+                problem: 'Create, read, update, delete entities',
+                description: 'Basic API operations for entity management.',
+                code: `# Create entity
+curl -X POST "https://api.getport.io/v1/blueprints/service/entities" \\
   -H "Authorization: Bearer $TOKEN" \\
   -H "Content-Type: application/json" \\
   -d '{
-    "identifier": "checkout-api",
-    "title": "Checkout API",
-    "properties": {
-      "language": "Python",
-      "owner": "alice@company.com",
-      "tier": 1
-    },
-    "relations": {
-      "domain": "payments"
-    }
+    "identifier": "my-service",
+    "title": "My Service",
+    "properties": {"language": "python", "version": "1.0.0"},
+    "relations": {"team": "platform"}
   }'
 
-# GET single entity
-curl -X GET "https://api.getport.io/v1/blueprints/service/entities/checkout-api" \\
+# Get entity
+curl "https://api.getport.io/v1/blueprints/service/entities/my-service" \\
   -H "Authorization: Bearer $TOKEN"
 
-# UPDATE (patch) - only specified fields
-curl -X PATCH "https://api.getport.io/v1/blueprints/service/entities/checkout-api" \\
+# Update entity (merge)
+curl -X PATCH "https://api.getport.io/v1/blueprints/service/entities/my-service" \\
   -H "Authorization: Bearer $TOKEN" \\
   -H "Content-Type: application/json" \\
-  -d '{
-    "properties": {
-      "status": "deployed",
-      "last_deployed": "2024-01-20T15:30:00Z"
-    }
-  }'
+  -d '{"properties": {"version": "1.1.0"}}'
 
-# DELETE entity
-curl -X DELETE "https://api.getport.io/v1/blueprints/service/entities/checkout-api" \\
-  -H "Authorization: Bearer $TOKEN"
-
-# DELETE with cascade (also delete related entities)
-curl -X DELETE "https://api.getport.io/v1/blueprints/service/entities/checkout-api?delete_dependents=true" \\
+# Delete entity
+curl -X DELETE "https://api.getport.io/v1/blueprints/service/entities/my-service" \\
   -H "Authorization: Bearer $TOKEN"`,
-                output: `Upsert query params:
-- upsert=true    → create if not exists, update if exists
-- merge=true     → merge properties (don't overwrite unspecified)
-- create_missing_related_entities=true → auto-create relations
-
-Response (201 created / 200 updated):
-{
-  "entity": {
-    "identifier": "checkout-api",
-    "title": "Checkout API",
-    ...
-  }
-}`,
-                tags: ['api', 'entity', 'crud', 'upsert']
+                output: 'Standard REST operations',
+                tags: ['api', 'entity', 'crud', 'rest']
             },
             {
+                id: 'api-search',
                 category: 'api',
                 title: 'Search Entities',
-                problem: 'Query entities with filters and pagination',
-                description: 'Search with rules, combinators, and result limiting.',
-                code: `# Search with filters
+                problem: 'Query entities with filters',
+                description: 'Search API with query rules.',
+                code: `# Search with filter
 curl -X POST "https://api.getport.io/v1/blueprints/service/entities/search" \\
   -H "Authorization: Bearer $TOKEN" \\
   -H "Content-Type: application/json" \\
   -d '{
+    "combinator": "and",
     "rules": [
-      { "property": "language", "operator": "=", "value": "Python" },
-      { "property": "tier", "operator": "<=", "value": 2 }
-    ],
-    "combinator": "and"
+      {"property": "language", "operator": "=", "value": "python"},
+      {"property": "is_production", "operator": "=", "value": true}
+    ]
   }'
 
-# Search with OR conditions
+# Search with relation filter
 curl -X POST "https://api.getport.io/v1/blueprints/service/entities/search" \\
   -H "Authorization: Bearer $TOKEN" \\
   -H "Content-Type: application/json" \\
   -d '{
+    "combinator": "and",
     "rules": [
-      { "property": "status", "operator": "=", "value": "critical" },
-      { "property": "status", "operator": "=", "value": "warning" }
-    ],
-    "combinator": "or"
-  }'
-
-# Search by relation
-curl -X POST "https://api.getport.io/v1/blueprints/service/entities/search" \\
-  -H "Authorization: Bearer $TOKEN" \\
-  -H "Content-Type: application/json" \\
-  -d '{
-    "rules": [
-      { "property": "$relation.domain", "operator": "=", "value": "payments" }
-    ],
-    "combinator": "and"
-  }'
-
-# Pagination
-curl -X POST "https://api.getport.io/v1/blueprints/service/entities/search?page=1&per_page=50" \\
-  -H "Authorization: Bearer $TOKEN" \\
-  -d '{ "rules": [], "combinator": "and" }'`,
-                output: `Operators:
-=, !=, >, >=, <, <=
-contains, doesNotContain (arrays)
-beginsWith, endsWith, isEmpty, isNotEmpty
-
-Response:
-{
-  "entities": [...],
-  "totalCount": 142,
-  "page": 1,
-  "perPage": 50
-}`,
+      {"property": "$relation.team", "operator": "=", "value": "platform"}
+    ]
+  }'`,
+                output: 'Returns matching entities array',
                 tags: ['api', 'search', 'query', 'filter']
             },
             {
+                id: 'api-action-run',
                 category: 'api',
-                title: 'Action Run Updates',
-                problem: 'Report action progress and completion to Port',
-                description: 'Update run status with logs, summary, and links.',
-                code: `# Update run status - IN PROGRESS
-curl -X PATCH "https://api.getport.io/v1/actions/runs/$RUN_ID" \\
-  -H "Authorization: Bearer $TOKEN" \\
-  -H "Content-Type: application/json" \\
-  -d '{
-    "status": "RUNNING",
-    "message": {
-      "text": "Step 1/3: Building container image..."
-    }
-  }'
-
-# Update run status - SUCCESS
-curl -X PATCH "https://api.getport.io/v1/actions/runs/$RUN_ID" \\
+                title: 'Update Action Run Status',
+                problem: 'Report action success/failure back to Port',
+                description: 'Update action run status from GitHub Action or webhook handler.',
+                code: `# In GitHub Action - report success
+curl -X PATCH "https://api.getport.io/v1/actions/runs/\${{ inputs.port_run_id }}" \\
   -H "Authorization: Bearer $TOKEN" \\
   -H "Content-Type: application/json" \\
   -d '{
     "status": "SUCCESS",
-    "message": {
-      "text": "Deployment completed successfully"
-    },
-    "summary": "Deployed v1.2.3 to production (3 replicas)",
-    "link": [
-      "https://argocd.company.com/applications/checkout-api",
-      "https://grafana.company.com/d/checkout-api"
-    ]
+    "summary": "Deployment completed successfully",
+    "link": "'\${{ github.server_url }}/\${{ github.repository }}/actions/runs/\${{ github.run_id }}'"
   }'
 
-# Update run status - FAILURE
+# Report failure with message
 curl -X PATCH "https://api.getport.io/v1/actions/runs/$RUN_ID" \\
   -H "Authorization: Bearer $TOKEN" \\
   -H "Content-Type: application/json" \\
   -d '{
     "status": "FAILURE",
-    "message": {
-      "text": "Deployment failed: ImagePullBackOff on pod checkout-api-7d8f9b-xyz"
-    },
-    "summary": "Failed to deploy v1.2.3 - container image not found",
-    "link": ["https://github.com/company/checkout-api/actions/runs/12345"]
-  }'`,
-                output: `Valid statuses:
-- RUNNING   → Action in progress (can send multiple)
-- SUCCESS   → Action completed successfully
-- FAILURE   → Action failed
+    "summary": "Deployment failed: '"$ERROR_MSG"'"
+  }'
 
-Each PATCH with status=RUNNING adds a log entry.
-Final status (SUCCESS/FAILURE) ends the run.
-
-summary: Short text shown in run history
-link: Array of URLs (shown as clickable links)`,
-                tags: ['api', 'action', 'run', 'status', 'webhook']
+# Add log entries
+curl -X POST "https://api.getport.io/v1/actions/runs/$RUN_ID/logs" \\
+  -H "Authorization: Bearer $TOKEN" \\
+  -H "Content-Type: application/json" \\
+  -d '{"message": "Step 1: Building image..."}'`,
+                output: 'Updates action status in Port UI',
+                tags: ['api', 'action', 'run', 'status', 'github']
             },
             {
+                id: 'api-bulk',
                 category: 'api',
-                title: 'Bulk Operations',
-                problem: 'Efficiently sync many entities',
-                description: 'Patterns for bulk upsert with rate limiting consideration.',
-                code: `#!/bin/bash
-# Bulk upsert pattern with rate limiting
-
-PORT_API="https://api.getport.io/v1"
-BLUEPRINT="service"
-BATCH_SIZE=50
-DELAY_MS=100
-
-# Get token
-TOKEN=$(curl -s -X POST "$PORT_API/auth/access_token" \\
+                title: 'Bulk Upsert Entities',
+                problem: 'Create/update many entities at once',
+                description: 'Efficient bulk operations for large datasets.',
+                code: `# Bulk upsert (create or update)
+curl -X POST "https://api.getport.io/v1/blueprints/service/entities" \\
+  -H "Authorization: Bearer $TOKEN" \\
   -H "Content-Type: application/json" \\
-  -d '{"clientId":"'$PORT_CLIENT_ID'","clientSecret":"'$PORT_CLIENT_SECRET'"}' \\
-  | jq -r '.accessToken')
+  -d '{
+    "entities": [
+      {
+        "identifier": "service-1",
+        "title": "Service 1",
+        "properties": {"language": "python"}
+      },
+      {
+        "identifier": "service-2", 
+        "title": "Service 2",
+        "properties": {"language": "node"}
+      }
+    ]
+  }'
 
-# Read entities from JSON file and upsert
-upsert_entity() {
-  local entity="$1"
-  curl -s -X POST "$PORT_API/blueprints/$BLUEPRINT/entities?upsert=true&merge=true" \\
-    -H "Authorization: Bearer $TOKEN" \\
-    -H "Content-Type: application/json" \\
-    -d "$entity"
+# Bulk delete
+curl -X DELETE "https://api.getport.io/v1/blueprints/service/entities" \\
+  -H "Authorization: Bearer $TOKEN" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "identifiers": ["service-1", "service-2"]
+  }'`,
+                output: 'Creates/updates multiple entities in one call',
+                tags: ['api', 'bulk', 'upsert', 'batch']
+            },
+            // ==================== TROUBLESHOOTING ====================
+            {
+                id: 'ts-entity-missing',
+                category: 'troubleshooting',
+                title: 'Entity Not Showing Up',
+                problem: 'Integration ran but entity not in catalog',
+                description: 'Common causes when entities fail to appear.',
+                code: `# 1. Check integration logs in Port UI
+#    Settings → Integrations → [Your Integration] → Logs
+
+# 2. Verify mapping selector matches
+selector:
+  query: 'true'  # Shows all - then narrow down
+
+# 3. Check identifier is valid (no special chars)
+identifier: .metadata.name | gsub("[^a-zA-Z0-9-_]"; "-")
+
+# 4. Verify blueprint exists
+curl "https://api.getport.io/v1/blueprints/YOUR_BLUEPRINT" \\
+  -H "Authorization: Bearer $TOKEN"
+
+# 5. Check required properties are mapped
+# Missing required props = silent failure
+
+# 6. Test JQ mapping locally
+echo '{"metadata":{"name":"test"}}' | jq '.metadata.name'`,
+                output: 'Checklist for debugging missing entities',
+                tags: ['troubleshooting', 'entity', 'missing', 'debug']
+            },
+            {
+                id: 'ts-jq-null',
+                category: 'troubleshooting',
+                title: 'JQ Returning Null',
+                problem: 'Mapping produces null values',
+                description: 'Debug JQ expressions that return unexpected nulls.',
+                code: `# Problem: Property shows null in Port
+
+# 1. Test the raw data
+echo '$YOUR_JSON' | jq '.path.to.property'
+
+# 2. Add debug output in mapping (temporary)
+properties:
+  debug_raw: ". | tostring"  # See full object
+
+# 3. Common fixes:
+
+# Missing field - add default
+.properties.owner // "unassigned"
+
+# Nested null - use try
+try .deep.nested.value catch "default"
+
+# Array might be empty
+.containers[0].image // "no-containers"
+
+# Wrong type - check with type
+if (.value | type) == "string" then .value else (.value | tostring) end
+
+# 4. Test in Port UI
+# Catalog → Entity → "Raw" tab shows actual data`,
+                output: 'JQ debugging techniques',
+                tags: ['troubleshooting', 'jq', 'null', 'debug']
+            },
+            {
+                id: 'ts-relation-broken',
+                category: 'troubleshooting',
+                title: 'Relation Not Resolving',
+                problem: 'Relation shows unresolved or missing target',
+                description: 'Fix broken entity relations.',
+                code: `# 1. Verify target entity exists
+curl "https://api.getport.io/v1/blueprints/TARGET_BP/entities/TARGET_ID" \\
+  -H "Authorization: Bearer $TOKEN"
+
+# 2. Check relation definition matches
+# In blueprint:
+"relations": {
+  "team": {
+    "target": "team",     # Must match target blueprint identifier
+    "required": false,    # If true, entity fails without valid relation
+    "many": false
+  }
 }
 
-# Process entities with rate limiting
-cat entities.json | jq -c '.[]' | while read entity; do
-  result=$(upsert_entity "$entity")
-  identifier=$(echo "$entity" | jq -r '.identifier')
-  
-  if echo "$result" | jq -e '.entity' > /dev/null 2>&1; then
-    echo "✓ $identifier"
-  else
-    echo "✗ $identifier: $(echo $result | jq -r '.message // .error')"
-  fi
-  
-  sleep 0.1  # Rate limiting
-done
+# 3. Check mapping returns valid identifier
+relations:
+  team: .metadata.labels.team  # Must match existing entity identifier
 
-# Python equivalent with retry
-"""
-import requests
-from time import sleep
-from requests.adapters import HTTPAdapter
-from urllib3.util.retry import Retry
+# 4. For search-based relations, verify query syntax
+relations:
+  service:
+    combinator: '"and"'  # Note: quoted string
+    rules:
+      - property: '"identifier"'  # Note: quoted
+        operator: '"="'
+        value: .metadata.labels.app
 
-session = requests.Session()
-retry = Retry(total=3, backoff_factor=0.5, status_forcelist=[429, 500, 502, 503])
-session.mount('https://', HTTPAdapter(max_retries=retry))
+# 5. Check target blueprint allows this relation (if restricted)`,
+                output: 'Relation debugging steps',
+                tags: ['troubleshooting', 'relation', 'unresolved', 'debug']
+            },
+            {
+                id: 'ts-action-stuck',
+                category: 'troubleshooting',
+                title: 'Action Run Stuck',
+                problem: 'Action shows IN_PROGRESS forever',
+                description: 'Debug actions that never complete.',
+                code: `# 1. Check GitHub Action workflow ran
+# GitHub → Actions → Look for recent runs
 
-def bulk_upsert(entities, blueprint='service'):
-    for entity in entities:
-        resp = session.post(
-            f'{PORT_API}/blueprints/{blueprint}/entities',
-            params={'upsert': 'true', 'merge': 'true'},
-            headers={'Authorization': f'Bearer {token}'},
-            json=entity
-        )
-        if resp.status_code == 429:
-            sleep(int(resp.headers.get('Retry-After', 60)))
-            continue
-        yield entity['identifier'], resp.ok
-        sleep(0.1)
-"""`,
-                output: `Rate limits:
-- ~100 requests/second typical
-- 429 response = back off (check Retry-After header)
+# 2. Verify workflow has Port run ID
+# In workflow file:
+on:
+  workflow_dispatch:
+    inputs:
+      port_run_id:       # This must be passed by Port
+        required: true
 
-Best practices:
-- Batch with small delays (100ms)
-- Implement retry with exponential backoff
-- Use merge=true to preserve unspecified properties
-- Log failures for manual review`,
-                tags: ['api', 'bulk', 'sync', 'rate-limit', 'batch']
+# 3. Ensure status update runs (even on failure)
+jobs:
+  deploy:
+    steps:
+      - name: Do work
+        run: ./deploy.sh
+      
+      - name: Report to Port
+        if: always()     # CRITICAL: runs even if previous failed
+        run: |
+          STATUS=\${{ job.status == 'success' && 'SUCCESS' || 'FAILURE' }}
+          curl -X PATCH "https://api.getport.io/v1/actions/runs/\${{ inputs.port_run_id }}" \\
+            -H "Authorization: Bearer \${{ secrets.PORT_CLIENT_SECRET }}" \\
+            -d '{"status":"'"$STATUS"'"}'
+
+# 4. Manually complete stuck run
+curl -X PATCH "https://api.getport.io/v1/actions/runs/RUN_ID" \\
+  -H "Authorization: Bearer $TOKEN" \\
+  -d '{"status":"FAILURE","summary":"Manually terminated"}'`,
+                output: 'Action debugging and manual completion',
+                tags: ['troubleshooting', 'action', 'stuck', 'github']
             }
         ];
 
@@ -2193,108 +1387,129 @@ Best practices:
             return div.innerHTML;
         }
 
-        function renderPatterns() {
-            const grid = document.getElementById('patternGrid');
-            const filtered = patterns.filter(p => {
-                const matchesCategory = activeCategory === 'all' || p.category === activeCategory;
-                const matchesSearch = !searchTerm || 
-                    p.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                    p.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                    p.problem.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                    p.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                    p.tags.some(t => t.toLowerCase().includes(searchTerm.toLowerCase()));
-                return matchesCategory && matchesSearch;
-            });
-
-            document.getElementById('status').textContent = 
-                `Showing ${filtered.length} of ${patterns.length} patterns`;
-
-            if (filtered.length === 0) {
-                grid.innerHTML = `
-                    <div class="no-results">
-                        <h3 style="font-size: 1.5em; margin-bottom: 10px;">No patterns found</h3>
-                        <p>Try adjusting your search or filter criteria</p>
-                    </div>
-                `;
-                return;
-            }
-
-            grid.innerHTML = filtered.map((p, i) => `
-                <div class="pattern-card">
-                    <div class="pattern-header">
-                        <h3 class="pattern-title">${escapeHtml(p.title)}</h3>
-                        <p class="pattern-problem">🎯 ${escapeHtml(p.problem)}</p>
-                        <p class="pattern-description">${escapeHtml(p.description)}</p>
-                        <div class="tags">
-                            ${p.tags.map(t => `<span class="tag">${escapeHtml(t)}</span>`).join('')}
-                        </div>
-                    </div>
-                    <div class="code-section">
-                        <div class="code-label">Code</div>
-                        <div class="code-container">
-                            <button class="copy-btn" data-code="${i}">Copy</button>
-                            <pre><code>${escapeHtml(p.code)}</code></pre>
-                        </div>
-                    </div>
-                    ${p.output ? `
-                    <div class="code-section output-section">
-                        <div class="code-label">Result / Notes</div>
-                        <div class="code-container">
-                            <pre><code>${escapeHtml(p.output)}</code></pre>
-                        </div>
-                    </div>
-                    ` : ''}
-                </div>
-            `).join('');
-
-            document.querySelectorAll('.copy-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const index = parseInt(this.getAttribute('data-code'));
-                    copyCode(this, filtered[index].code);
+        function copyCode(btn, code) {
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(code).then(() => {
+                    btn.textContent = 'Copied!';
+                    btn.classList.add('copied');
+                    setTimeout(() => {
+                        btn.textContent = 'Copy';
+                        btn.classList.remove('copied');
+                    }, 2000);
                 });
-            });
-        }
-
-        function copyCode(button, code) {
-            navigator.clipboard.writeText(code).then(() => {
-                button.textContent = 'Copied!';
-                button.classList.add('copied');
-                setTimeout(() => {
-                    button.textContent = 'Copy';
-                    button.classList.remove('copied');
-                }, 2000);
-            }).catch(err => {
+            } else {
                 const textarea = document.createElement('textarea');
                 textarea.value = code;
-                textarea.style.position = 'fixed';
-                textarea.style.opacity = '0';
                 document.body.appendChild(textarea);
                 textarea.select();
                 document.execCommand('copy');
                 document.body.removeChild(textarea);
-                button.textContent = 'Copied!';
-                button.classList.add('copied');
+                btn.textContent = 'Copied!';
+                btn.classList.add('copied');
                 setTimeout(() => {
-                    button.textContent = 'Copy';
-                    button.classList.remove('copied');
+                    btn.textContent = 'Copy';
+                    btn.classList.remove('copied');
                 }, 2000);
+            }
+        }
+
+        function filterPatterns() {
+            const term = searchTerm.toLowerCase().trim();
+            return patterns.filter(p => {
+                const categoryMatch = activeCategory === 'all' || p.category === activeCategory;
+                if (!categoryMatch) return false;
+                if (!term) return true;
+                
+                // Search title, problem, description, tags first (faster, more relevant)
+                const textMatch = 
+                    p.title.toLowerCase().includes(term) ||
+                    (p.problem && p.problem.toLowerCase().includes(term)) ||
+                    p.description.toLowerCase().includes(term) ||
+                    p.tags.some(t => t.toLowerCase().includes(term));
+                
+                if (textMatch) return true;
+                
+                // Only search code for longer queries (3+ chars) to reduce noise
+                if (term.length >= 3) {
+                    return p.code.toLowerCase().includes(term);
+                }
+                
+                return false;
             });
         }
 
+        function renderPatterns() {
+            const grid = document.getElementById('patternGrid');
+            const status = document.getElementById('status');
+            const filtered = filterPatterns();
+
+            if (filtered.length === 0) {
+                grid.innerHTML = '';
+                status.textContent = 'No patterns found. Try a different search or category.';
+                status.style.display = 'block';
+                return;
+            }
+
+            status.textContent = `Showing ${filtered.length} of ${patterns.length} patterns`;
+            status.style.display = 'block';
+
+            grid.innerHTML = filtered.map(p => `
+                <div class="pattern-card">
+                    <div class="card-header">
+                        <span class="card-category cat-${p.category}">${p.category}</span>
+                        <h3 class="card-title">${escapeHtml(p.title)}</h3>
+                        ${p.problem ? `<p class="card-problem">💡 ${escapeHtml(p.problem)}</p>` : ''}
+                        <p class="card-description">${escapeHtml(p.description)}</p>
+                    </div>
+                    <div class="card-body">
+                        <div class="code-block">
+                            <div class="code-header">
+                                <span class="code-label">Code</span>
+                                <button class="copy-btn" data-id="${p.id}">Copy</button>
+                            </div>
+                            <pre>${escapeHtml(p.code)}</pre>
+                        </div>
+                        ${p.output ? `
+                        <div class="output-block">
+                            <div class="output-label">Output / Notes</div>
+                            <div class="output-content">${escapeHtml(p.output)}</div>
+                        </div>
+                        ` : ''}
+                    </div>
+                    <div class="card-tags">
+                        ${p.tags.map(t => `<span class="tag">${escapeHtml(t)}</span>`).join('')}
+                    </div>
+                </div>
+            `).join('');
+
+            // Attach copy handlers using pattern ID for stability
+            grid.querySelectorAll('.copy-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const patternId = this.getAttribute('data-id');
+                    const pattern = patterns.find(p => p.id === patternId);
+                    if (pattern) {
+                        copyCode(this, pattern.code);
+                    }
+                });
+            });
+        }
+
+        // Event listeners
         document.getElementById('searchBox').addEventListener('input', (e) => {
             searchTerm = e.target.value;
             renderPatterns();
         });
 
         document.querySelectorAll('.category-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
+            btn.addEventListener('click', () => {
                 document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
-                e.target.classList.add('active');
-                activeCategory = e.target.dataset.category;
+                btn.classList.add('active');
+                activeCategory = btn.dataset.category;
                 renderPatterns();
             });
         });
 
+        // Initial render
         renderPatterns();
     </script>
 </body>
