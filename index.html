@@ -42,7 +42,8 @@
         .pattern-card:target { border-color: #60a5fa; box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.3); }
         
         .card-header { padding: 16px; border-bottom: 1px solid #334155; position: relative; }
-        .card-category { display: inline-block; padding: 4px 10px; border-radius: 12px; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; margin-bottom: 8px; }
+        .card-meta-row { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }
+        .card-category { display: inline-block; padding: 4px 10px; border-radius: 12px; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; }
         .card-title-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
         .card-title { font-size: 1.1rem; font-weight: 600; color: #f1f5f9; margin-bottom: 6px; flex: 1; }
         .link-btn { background: transparent; border: 1px solid #475569; color: #64748b; width: 28px; height: 28px; border-radius: 4px; cursor: pointer; font-size: 0.8rem; transition: all 0.2s; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
@@ -113,7 +114,7 @@
         <header>
             <h1>🚀 Port.io Implementation Cheat Sheet</h1>
             <p class="subtitle">Copy-paste patterns for blueprints, mappings, actions, and automations</p>
-            <p class="version">Last updated: January 5, 2026 • v2.2</p>
+            <p class="version">Last updated: January 5, 2026 • v2.3</p>
             <div class="header-actions">
                 <button class="header-btn" onclick="window.print()" aria-label="Print this page or save as PDF">🖨️ Print / Save PDF</button>
                 <a href="https://docs.port.io" target="_blank" class="header-btn" aria-label="Open Port.io documentation">📚 Full Docs</a>
@@ -456,9 +457,9 @@
                 id: 'search-relation',
                 validated: 'adapt',
                 category: 'mapping',
-                title: 'Search-Based Relation',
+                title: 'Rule-Based Relation Matching',
                 problem: 'Create relations based on matching properties',
-                description: 'Uses searchRelation to find related entities by property value.',
+                description: 'Uses query rules to dynamically match related entities by property value.',
                 code: `resources:
   - kind: deployment
     port:
@@ -930,7 +931,7 @@ curl -X POST "https://ingest.getport.io/<YOUR_WEBHOOK_ID>" \\
                 tags: ['automation', 'updated', 'diff', 'condition']
             },
             {
-                id: 'timer-cron-trigger',
+                id: 'timer-property-expired',
                 validated: 'adapt',
                 category: 'automations',
                 title: 'Timer Property Expired',
@@ -958,7 +959,7 @@ curl -X POST "https://ingest.getport.io/<YOUR_WEBHOOK_ID>" \\
   }
 }`,
                 output: 'Fires when next_review_date passes',
-                tags: ['automation', 'timer', 'cron', 'schedule']
+                tags: ['automation', 'timer', 'date', 'expiry']
             },
             {
                 id: 'scorecard-change-trigger',
@@ -1477,6 +1478,7 @@ curl -X PATCH "https://api.getport.io/v1/actions/runs/RUN_ID" \\
                 textarea.style.left = '-9999px';
                 document.body.appendChild(textarea);
                 textarea.select();
+                textarea.setSelectionRange(0, textarea.value.length);
                 document.execCommand('copy');
                 document.body.removeChild(textarea);
                 btn.textContent = successText;
@@ -1514,18 +1516,23 @@ curl -X PATCH "https://api.getport.io/v1/actions/runs/RUN_ID" \\
             status.style.display = 'block';
 
             grid.innerHTML = filtered.map(p => {
-                const badgeClass = p.validated === 'production' ? 'validation-production' : 
-                                   p.validated === 'tested' ? 'validation-tested' : 'validation-adapt';
-                const badgeIcon = p.validated === 'production' ? '✅' : 
-                                  p.validated === 'tested' ? '🧪' : '⚙️';
-                const badgeText = p.validated === 'production' ? 'Production' : 
-                                  p.validated === 'tested' ? 'Tested' : 'Adapt';
-                const categoryDisplay = p.category.charAt(0).toUpperCase() + p.category.slice(1);
+                const validValues = ['production', 'tested', 'adapt'];
+                const validation = validValues.includes(p.validated) ? p.validated : (console.warn(`Unknown validation "${p.validated}" for ${p.id}`), 'adapt');
+                const badgeClass = validation === 'production' ? 'validation-production' : 
+                                   validation === 'tested' ? 'validation-tested' : 'validation-adapt';
+                const badgeIcon = validation === 'production' ? '✅' : 
+                                  validation === 'tested' ? '🧪' : '⚙️';
+                const badgeText = validation === 'production' ? 'Production' : 
+                                  validation === 'tested' ? 'Tested' : 'Adapt';
+                const categoryDisplay = p.category === 'jq' ? 'JQ' : 
+                                        p.category.charAt(0).toUpperCase() + p.category.slice(1);
                 return `
                 <div class="pattern-card" id="${p.id}">
                     <div class="card-header">
-                        <span class="card-category cat-${p.category}">${categoryDisplay}</span>
-                        <span class="validation-badge ${badgeClass}">${badgeIcon} ${badgeText}</span>
+                        <div class="card-meta-row">
+                            <span class="card-category cat-${p.category}">${categoryDisplay}</span>
+                            <span class="validation-badge ${badgeClass}">${badgeIcon} ${badgeText}</span>
+                        </div>
                         <div class="card-title-row">
                             <h3 class="card-title">${escapeHtml(p.title)}</h3>
                             <button class="link-btn" data-id="${p.id}" aria-label="Copy link to ${escapeHtml(p.title)} pattern" title="Copy link">🔗</button>
