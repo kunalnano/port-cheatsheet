@@ -1,108 +1,158 @@
-# Port.io Implementation Cheat Sheet
+# 🚀 Port.io Implementation Toolkit
 
-**Live Site:** https://kunalnano.github.io/port-cheatsheet/
+<div align="center">
 
-Copy-paste patterns for Port.io blueprints, mappings, actions, scorecards, automations, JQ, and API calls.
+**Production-ready patterns and decision frameworks for Port.io implementations**
 
----
+[![Live Site](https://img.shields.io/badge/Live-Cheat_Sheet-blue?style=for-the-badge)](https://kunalnano.github.io/port-cheatsheet/)
+[![Mental Model](https://img.shields.io/badge/Live-Mental_Model-purple?style=for-the-badge)](https://kunalnano.github.io/port-cheatsheet/port-mental-model.html)
+[![JQ Playground](https://img.shields.io/badge/Tool-JQ_Playground-cyan?style=for-the-badge)](https://jq.port.io/)
 
-## Pages
-
-| Page | Description | Use When |
-|------|-------------|----------|
-| [`index.html`](https://kunalnano.github.io/port-cheatsheet/) | **Pattern Cheat Sheet** — Copy-paste snippets | You know what you need, just need the syntax |
-| [`mental-model.html`](https://kunalnano.github.io/port-cheatsheet/mental-model.html) | **Mental Model Guide** — Decision frameworks | You're deciding *what* to build, not just *how* |
+</div>
 
 ---
 
-## Versions (Cheat Sheet)
+## 📚 What's Inside
 
-| File | Description | Dependencies |
-|------|-------------|--------------|
-| `index.html` | **Default** - Dependency-free, works offline | None |
-| `index-prism.html` | Enhanced syntax highlighting | Prism.js via CDN |
-
-**Recommendation:** Use `index.html` for reliability in corporate/restricted networks.
+| Resource | Description | Use When |
+|----------|-------------|----------|
+| [**Pattern Cheat Sheet**](https://kunalnano.github.io/port-cheatsheet/) | Copy-paste code snippets for blueprints, mappings, actions, scorecards, automations, JQ, and API calls | You know what you need — just need the syntax |
+| [**Mental Model Guide**](https://kunalnano.github.io/port-cheatsheet/port-mental-model.html) | Decision trees and frameworks for *how to think* about Port implementations | You're unsure which approach to use |
 
 ---
 
-## What's Included
+## 🎯 Pattern Cheat Sheet
 
-### Pattern Cheat Sheet (index.html)
+> **33 production-validated patterns** across 8 categories
+
+### Categories
 
 | Category | Patterns | Examples |
-|----------|----------|----------|
-| **Blueprints** | 5 | Basic, arrays/objects, mirror, calculation, aggregation |
-| **Mapping** | 6 | GitHub, K8s, ArgoCD, Terraform, search relations, webhooks |
-| **Actions** | 5 | Self-service, entity selection, create, approval, workflows |
+|----------|:--------:|----------|
+| **Blueprints** | 5 | Basic schema, arrays/objects, mirror, calculation, aggregation |
+| **Mapping** | 6 | GitHub, Kubernetes, ArgoCD, Terraform, search relations, webhooks |
+| **Actions** | 5 | Self-service, entity selection, create entity, approval flows, webhooks |
 | **Scorecards** | 3 | Production readiness, time-based rules, mirror properties |
-| **Automations** | 4 | Entity created/updated, cron/timer, scorecard triggers |
+| **Automations** | 4 | Entity created/updated, timer triggers, scorecard changes |
 | **JQ** | 5 | Defaults, strings, arrays, dates, automation conditions |
-| **API** | 5 | Auth, CRUD, search, run updates, bulk operations |
+| **API** | 5 | Auth, CRUD, search, action status, bulk operations |
+| **Troubleshooting** | 4 | Missing entities, null values, broken relations, stuck actions |
 
-**Total: 33 patterns**
+### Features
 
-### Mental Model Guide (mental-model.html)
-
-| Section | Content |
-|---------|---------|
-| **Entity Test** | The 3-of-4 Golden Rule for when to create a Blueprint |
-| **Granularity Matrix** | Cloud, K8s, Source Control, Security — what to model vs. aggregate |
-| **Decision Trees** | Property types, Relations, Actions vs Automations, Scorecards, Integrations |
-| **Anti-Patterns** | Common mistakes that cause rework |
-| **Implementation Phases** | 7-phase build sequence |
+- 🔍 **Search** — Find patterns by keyword (press `/` to focus)
+- 🏷️ **Filter** — Click category tabs to narrow results
+- 📋 **Copy** — One-click copy for any snippet
+- 🔗 **Deep links** — Share direct links to specific patterns
+- 🖨️ **Print** — Export to PDF for offline reference
 
 ---
 
-## How to Use
+## 🧭 Mental Model Guide
 
-### Cheat Sheet
-1. **Search** - Type keywords like `kubernetes`, `webhook`, `jq time`
-2. **Filter** - Click category buttons to narrow results
-3. **Copy** - Click "Copy" button on any snippet
-4. **Adapt** - Replace `<YOUR_ORG>`, `<YOUR_REPO>`, `<YOUR_DOMAIN>` placeholders
+> **Think before you build** — Decision frameworks that prevent costly rework
 
-### Mental Model
-1. **Navigate** - Use sidebar to jump to sections
-2. **Expand** - Click decision tree cards to see flowcharts
-3. **Decide** - Follow the logic to pick the right approach
-4. **Print** - Use Print button for offline/PDF reference
+### What You'll Learn
+
+| Section | Key Question |
+|---------|--------------|
+| **Entity Test** | Should this be a Blueprint or just a Property? |
+| **Granularity Matrix** | How deep should I model? (Cloud, K8s, Source Control, Security) |
+| **Property Types** | Regular vs Mirror vs Calculation vs Aggregation? |
+| **Relations** | When to use Relations vs Properties vs Search Relations? |
+| **Actions vs Automations** | Human-triggered or event-driven? |
+| **Scorecards** | Standards tracking vs simple properties? |
+| **Anti-Patterns** | Common mistakes and how to avoid them |
+
+### The Golden Rule
+
+> **Only create a Blueprint if it meets 3 of 4 criteria:**
+> 1. **Ownership** — Does a specific team own it?
+> 2. **Lifecycle** — Independent of its parent?
+> 3. **Workflow** — Will you run Day 2 Actions against it?
+> 4. **Scorecard** — Need to track quality/compliance over time?
 
 ---
 
-## API Regions
+## 🛠️ Quick Start
 
-* **US:** `api.getport.io`
-* **EU:** `api.eu.getport.io`
+### Option 1: Use Online
+- **Cheat Sheet**: [kunalnano.github.io/port-cheatsheet](https://kunalnano.github.io/port-cheatsheet/)
+- **Mental Model**: [kunalnano.github.io/port-cheatsheet/port-mental-model.html](https://kunalnano.github.io/port-cheatsheet/port-mental-model.html)
+
+### Option 2: Use Offline
+```bash
+# Clone the repo
+git clone https://github.com/kunalnano/port-cheatsheet.git
+
+# Open in browser
+open port-cheatsheet/index.html
+```
+
+Both pages are **single-file HTML with zero dependencies** — they work completely offline.
 
 ---
 
-## Contributing
+## 📝 File Reference
 
-### Add a Pattern (Cheat Sheet)
+| File | Description |
+|------|-------------|
+| `index.html` | Pattern Cheat Sheet (default, no dependencies) |
+| `index-prism.html` | Pattern Cheat Sheet with Prism.js syntax highlighting |
+| `port-mental-model.html` | Mental Model decision guide |
+
+---
+
+## 🔗 Related Resources
+
+| Resource | Link |
+|----------|------|
+| Port.io Documentation | [docs.port.io](https://docs.port.io) |
+| Port.io API Reference | [api.getport.io/static/index.html](https://api.getport.io/static/index.html) |
+| JQ Playground | [jq.port.io](https://jq.port.io/) |
+
+### API Regions
+- **US**: `api.getport.io`
+- **EU**: `api.eu.getport.io`
+
+---
+
+## 🤝 Contributing
+
+### Add a Pattern
+
 Edit the `patterns` array in `index.html`:
 
 ```javascript
 {
-    category: 'mapping',           // blueprints|mapping|actions|scorecards|automations|jq|api
-    title: 'Your Pattern Title',
-    problem: 'What problem this solves',
-    description: 'How it works',
-    code: `your code here`,
-    output: `expected result or notes`,
-    tags: ['tag1', 'tag2']
+  id: 'unique-pattern-id',
+  category: 'mapping',  // blueprints|mapping|actions|scorecards|automations|jq|api|troubleshooting
+  title: 'Your Pattern Title',
+  validated: 'tested',  // production|tested|adapt
+  problem: 'What problem this solves',
+  description: 'How it works',
+  code: `your code here`,
+  output: 'Expected result or notes',
+  tags: ['tag1', 'tag2']
 }
 ```
 
-### Improve Mental Model
-Edit `mental-model.html` directly. Key sections:
-- Decision trees use `.tree` class with semantic spans (`.q`, `.yes`, `.no`, `.result`)
-- Tables use standard HTML with badge classes (`.badge-green`, `.badge-yellow`, `.badge-red`)
-- Collapsible cards use `.card` with click handler on `.card-header`
+### Improve the Mental Model
+
+Edit `port-mental-model.html` to add decision trees, anti-patterns, or granularity guidance.
 
 ---
 
-## Links
+## 📄 License
 
-* [Port.io Documentation](https://docs.port.io)
-* [Port.io API Reference](https://api.getport.io/static/index.html)
+MIT — Use freely, attribution appreciated.
+
+---
+
+<div align="center">
+
+**Built for Port.io practitioners** · Patterns validated in real implementations
+
+[Open Cheat Sheet](https://kunalnano.github.io/port-cheatsheet/) · [Open Mental Model](https://kunalnano.github.io/port-cheatsheet/port-mental-model.html)
+
+</div>
