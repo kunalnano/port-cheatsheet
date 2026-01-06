@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Port.io Implementation Mental Model</title>
+    <style>
+        :root {
+            --bg-dark: #0d1117;
+            --bg-card: #161b22;
+            --bg-hover: #21262d;
+            --border: #30363d;
+            --text: #e6edf3;
+            --text-muted: #8b949e;
+            --accent: #58a6ff;
+            --green: #3fb950;
+            --orange: #d29922;
+            --red: #f85149;
+            --purple: #a371f7;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg-dark);
+            color: var(--text);
+            line-height: 1.6;
+            font-size: 15px;
+        }
+
+        /* Header - matches cheatsheet */
+        .header {
+            background: linear-gradient(135deg, #1a1f2e 0%, #0d1117 100%);
+            padding: 2rem;
+            text-align: center;
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header h1 {
+            font-size: 1.75rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        .header-links {
+            margin-top: 1rem;
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .header-links a {
+            color: var(--accent);
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+        }
+
+        .header-links a:hover {
+            background: var(--bg-hover);
+            border-color: var(--accent);
+        }
+
+        /* Layout */
+        .container {
+            display: flex;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            padding: 1.5rem;
+            position: sticky;
+            top: 120px;
+            height: calc(100vh - 120px);
+            overflow-y: auto;
+            border-right: 1px solid var(--border);
+        }
+
+        .nav-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .nav-title {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+        }
+
+        .nav-link {
+            display: block;
+            padding: 0.4rem 0.75rem;
+            color: var(--text);
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            margin-bottom: 2px;
+        }
+
+        .nav-link:hover { background: var(--bg-hover); }
+        .nav-link.active { background: var(--accent); color: #fff; }
+
+        /* Main Content */
+        .main {
+            flex: 1;
+            padding: 2rem;
+            max-width: 900px;
+        }
+
+        h2 {
+            font-size: 1.4rem;
+            margin: 2.5rem 0 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border);
+            color: var(--accent);
+        }
+
+        h2:first-of-type { margin-top: 0; }
+
+        h3 {
+            font-size: 1.1rem;
+            margin: 1.5rem 0 0.75rem;
+            color: var(--text);
+        }
+
+        h4 {
+            font-size: 0.95rem;
+            margin: 1rem 0 0.5rem;
+            color: var(--purple);
+        }
+
+        p { margin-bottom: 1rem; }
+
+        /* Cards - matches cheatsheet pattern cards */
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            overflow: hidden;
+        }
+
+        .card-header {
+            padding: 1rem 1.25rem;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--bg-hover);
+            user-select: none;
+        }
+
+        .card-header:hover { background: #2d333b; }
+
+        .card-header h3 {
+            margin: 0;
+            font-size: 0.95rem;
+        }
+
+        .card-icon {
+            font-size: 1rem;
+            transition: transform 0.2s;
+            color: var(--text-muted);
+        }
+
+        .card.open .card-icon { transform: rotate(90deg); }
+
+        .card-content {
+            display: none;
+            padding: 1.25rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .card.open .card-content { display: block; }
+
+        /* Decision Tree Code Block */
+        .tree {
+            background: var(--bg-dark);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 1rem;
+            font-family: 'SF Mono', 'Fira Code', Consolas, monospace;
+            font-size: 0.8rem;
+            overflow-x: auto;
+            white-space: pre;
+            line-height: 1.5;
+        }
+
+        .tree .q { color: var(--accent); font-weight: 600; }
+        .tree .yes { color: var(--green); }
+        .tree .no { color: var(--red); }
+        .tree .result { color: var(--orange); font-weight: 600; }
+        .tree .note { color: var(--text-muted); font-style: italic; }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+            font-size: 0.85rem;
+        }
+
+        th, td {
+            padding: 0.6rem 0.75rem;
+            text-align: left;
+            border: 1px solid var(--border);
+        }
+
+        th {
+            background: var(--bg-hover);
+            font-weight: 600;
+            color: var(--accent);
+        }
+
+        tr:nth-child(even) { background: var(--bg-card); }
+
+        /* Badges */
+        .badge {
+            display: inline-block;
+            padding: 0.15rem 0.4rem;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
+        .badge-green { background: #238636; color: #fff; }
+        .badge-yellow { background: #9e6a03; color: #fff; }
+        .badge-red { background: #da3633; color: #fff; }
+
+        /* Callouts */
+        .callout {
+            padding: 1rem 1.25rem;
+            border-radius: 6px;
+            margin: 1rem 0;
+            border-left: 4px solid;
+        }
+
+        .callout-info {
+            background: rgba(88, 166, 255, 0.1);
+            border-color: var(--accent);
+        }
+
+        .callout-warning {
+            background: rgba(210, 153, 34, 0.1);
+            border-color: var(--orange);
+        }
+
+        .callout-danger {
+            background: rgba(248, 81, 73, 0.1);
+            border-color: var(--red);
+        }
+
+        .callout-title {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Code inline */
+        code {
+            background: var(--bg-hover);
+            padding: 0.15rem 0.35rem;
+            border-radius: 4px;
+            font-family: 'SF Mono', 'Fira Code', Consolas, monospace;
+            font-size: 0.85em;
+        }
+
+        /* Lists */
+        ul, ol {
+            margin: 0.75rem 0;
+            padding-left: 1.5rem;
+        }
+
+        li { margin-bottom: 0.3rem; }
+
+        /* Print Button */
+        .print-btn {
+            position: fixed;
+            bottom: 1.5rem;
+            right: 1.5rem;
+            background: var(--accent);
+            color: #fff;
+            border: none;
+            padding: 0.6rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 500;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+
+        .print-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.4);
+        }
+
+        /* Mobile */
+        @media (max-width: 900px) {
+            .sidebar { display: none; }
+            .main { padding: 1.5rem; }
+            .header { position: relative; }
+        }
+
+        /* Print */
+        @media print {
+            :root {
+                --bg-dark: #fff;
+                --bg-card: #f6f8fa;
+                --bg-hover: #eef1f4;
+                --border: #d0d7de;
+                --text: #1f2328;
+                --text-muted: #656d76;
+                --accent: #0969da;
+            }
+
+            body { font-size: 10pt; }
+            .header, .sidebar, .print-btn { display: none !important; }
+            .container { display: block; }
+            .main { padding: 0; max-width: 100%; }
+            .card-content { display: block !important; }
+            .card { break-inside: avoid; page-break-inside: avoid; }
+            h2 { page-break-after: avoid; }
+            .tree { font-size: 7pt; white-space: pre-wrap; }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <h1>🧭 Port.io Implementation Mental Model</h1>
+        <p>How to think about Port implementations — decision frameworks, not just patterns</p>
+        <div class="header-links">
+            <a href="index.html">📋 Pattern Cheat Sheet</a>
+            <a href="https://docs.port.io" target="_blank">📚 Full Docs</a>
+            <a href="#" onclick="window.print(); return false;">🖨️ Print / PDF</a>
+        </div>
+    </header>
+
+    <div class="container">
+        <nav class="sidebar">
+            <div class="nav-section">
+                <div class="nav-title">Foundation</div>
+                <a href="#entity-test" class="nav-link">The Entity Test</a>
+            </div>
+            <div class="nav-section">
+                <div class="nav-title">Granularity Matrix</div>
+                <a href="#cloud" class="nav-link">Cloud Resources</a>
+                <a href="#kubernetes" class="nav-link">Kubernetes</a>
+                <a href="#source-control" class="nav-link">Source Control</a>
+                <a href="#security" class="nav-link">Security & Quality</a>
+            </div>
+            <div class="nav-section">
+                <div class="nav-title">Decision Trees</div>
+                <a href="#dt-property" class="nav-link">Property Types</a>
+                <a href="#dt-relation" class="nav-link">Relation vs Property</a>
+                <a href="#dt-action" class="nav-link">Action vs Automation</a>
+                <a href="#dt-scorecard" class="nav-link">Scorecard vs Property</a>
+                <a href="#dt-integration" class="nav-link">Integration vs Webhook</a>
+            </div>
+            <div class="nav-section">
+                <div class="nav-title">Reference</div>
+                <a href="#anti-patterns" class="nav-link">Anti-Patterns</a>
+                <a href="#phases" class="nav-link">Implementation Phases</a>
+            </div>
+        </nav>
+
+        <main class="main">
+            <!-- ENTITY TEST -->
+            <h2 id="entity-test">The Entity Test (Golden Rule)</h2>
+            <p>Before ingesting any data source, distinguish between an <strong>Entity</strong> (Blueprint) and a <strong>Property</strong> (Metadata). The 4M rule result limit exists because users confuse data availability with structural importance.</p>
+
+            <div class="callout callout-warning">
+                <div class="callout-title">Only Create a Blueprint If It Meets 3 of 4 Criteria</div>
+                <ol>
+                    <li><strong>Ownership:</strong> Does a specific team or person own this object?</li>
+                    <li><strong>Lifecycle:</strong> Does it have a lifecycle independent of its parent?</li>
+                    <li><strong>Workflow (Action Test):</strong> Will you run Day 2 Actions against it?</li>
+                    <li><strong>Scorecard Necessity:</strong> Do you need to track quality/compliance over time?</li>
+                </ol>
+            </div>
+
+            <!-- GRANULARITY MATRICES -->
+            <h2 id="cloud">Granularity: Cloud Resources</h2>
+            <p><strong>The Trap:</strong> Cloud providers expose thousands of resource types. Ingesting them all creates a "Junkyard" catalog.</p>
+            <table>
+                <thead><tr><th>Object Type</th><th>Verdict</th><th>Why</th></tr></thead>
+                <tbody>
+                    <tr><td>S3 Buckets / Storage Blobs</td><td><span class="badge badge-green">✓ ENTITY</span></td><td>Distinct permissions, compliance checks. Actions: "Encrypt," "Modify Policy"</td></tr>
+                    <tr><td>RDS / SQL Instances</td><td><span class="badge badge-green">✓ ENTITY</span></td><td>High cost, maintenance windows. Actions: "Snapshot," "Resize"</td></tr>
+                    <tr><td>Lambda / Functions</td><td><span class="badge badge-yellow">⚠ CAUTION</span></td><td>Only if "primary" compute. Utility scripts → aggregate as properties</td></tr>
+                    <tr><td>EC2 / VMs</td><td><span class="badge badge-yellow">⚠ CAUTION</span></td><td>If "Cattle" (ASG), model the ASG not individual instances</td></tr>
+                    <tr><td>ENIs, Security Groups, Subnets</td><td><span class="badge badge-red">✗ ANTI-PATTERN</span></td><td>Infrastructure plumbing → properties of VPC or Service</td></tr>
+                </tbody>
+            </table>
+
+            <h2 id="kubernetes">Granularity: Kubernetes</h2>
+            <p><strong>The Trap:</strong> The "Pod Explosion" — tracking ephemeral objects burns limits instantly.</p>
+            <table>
+                <thead><tr><th>Object Type</th><th>Verdict</th><th>Why</th></tr></thead>
+                <tbody>
+                    <tr><td>Cluster</td><td><span class="badge badge-green">✓ ENTITY</span></td><td>Top-level container for cost/governance</td></tr>
+                    <tr><td>Namespace</td><td><span class="badge badge-green">✓ ENTITY</span></td><td>Logical boundary for team ownership</td></tr>
+                    <tr><td>Workload (Deployment/StatefulSet)</td><td><span class="badge badge-green">✓ ENTITY</span></td><td>Matches "Service" mental model</td></tr>
+                    <tr><td>Pod</td><td><span class="badge badge-red">✗ ANTI-PATTERN</span></td><td>Ephemeral. 10k pods = instant limit burn, zero value</td></tr>
+                </tbody>
+            </table>
+
+            <h2 id="source-control">Granularity: Source Control</h2>
+            <p><strong>The Trap:</strong> The "File System" Fallacy.</p>
+            <table>
+                <thead><tr><th>Object Type</th><th>Verdict</th><th>Why</th></tr></thead>
+                <tbody>
+                    <tr><td>Repository</td><td><span class="badge badge-green">✓ ENTITY</span></td><td>Standard unit of code ownership</td></tr>
+                    <tr><td>Pull Request</td><td><span class="badge badge-yellow">⚠ CAUTION</span></td><td>Valid for DORA, but must have TTL or you hit 4M in 6 months</td></tr>
+                    <tr><td>Source File</td><td><span class="badge badge-red">✗ ANTI-PATTERN</span></td><td>Infinite fan-out. Use catalog-info.yaml for logical components</td></tr>
+                </tbody>
+            </table>
+
+            <h2 id="security">Granularity: Security & Quality</h2>
+            <p><strong>The Trap:</strong> The "Vulnerability Flood" — a single app can have 5,000 CVEs.</p>
+            <table>
+                <thead><tr><th>Object Type</th><th>Verdict</th><th>Why</th></tr></thead>
+                <tbody>
+                    <tr><td>Vulnerability (CVE)</td><td><span class="badge badge-red">✗ ANTI-PATTERN</span></td><td>100 apps × 5k CVEs = 500k entities. Aggregate: <code>critical_vulns: 5</code></td></tr>
+                    <tr><td>Jira Issue</td><td><span class="badge badge-yellow">⚠ CAUTION</span></td><td>Only Epics/Incidents. Not every Task/Sub-task</td></tr>
+                </tbody>
+            </table>
+
+            <!-- DECISION TREES -->
+            <h2 id="dt-property">Decision Tree: Property Type Selection</h2>
+            <div class="card open">
+                <div class="card-header" onclick="this.parentElement.classList.toggle('open')">
+                    <h3>Property Type Flowchart</h3>
+                    <span class="card-icon">▶</span>
+                </div>
+                <div class="card-content">
+                    <div class="tree"><span class="q">Q1: Does this value originate from the entity's source system?</span>
+├── <span class="yes">YES</span> → <span class="q">Q2: Will you ingest it directly via integration/webhook?</span>
+│   ├── <span class="yes">YES</span> → <span class="result">REGULAR PROPERTY</span>
+│   └── <span class="no">NO</span> → <span class="result">REGULAR PROPERTY</span> + custom API/webhook
+│
+└── <span class="no">NO</span> → <span class="q">Q3: Where does the value come from?</span>
+    ├── "From another property ON THIS SAME entity" → <span class="result">CALCULATION</span>
+    ├── "From a RELATED entity (single)" → <span class="result">MIRROR PROPERTY</span>
+    ├── "Computed ACROSS multiple related entities" → <span class="result">AGGREGATION PROPERTY</span>
+    └── "From external system not in Port" → <span class="result">REGULAR PROPERTY</span> <span class="note">(via API)</span></div>
+
+                    <h4>Edge Cases</h4>
+                    <table>
+                        <thead><tr><th>Scenario</th><th>Intuition</th><th>Actually Use</th></tr></thead>
+                        <tbody>
+                            <tr><td>Owner's email on service</td><td>Property?</td><td><strong>Mirror</strong> (from Team entity)</td></tr>
+                            <tr><td>Count of deployments this week</td><td>Calculation?</td><td><strong>Aggregation</strong></td></tr>
+                            <tr><td>Is service compliant? (yes/no)</td><td>Property?</td><td><strong>Calculation</strong> or Scorecard</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <h2 id="dt-relation">Decision Tree: Relation vs Property</h2>
+            <div class="card open">
+                <div class="card-header" onclick="this.parentElement.classList.toggle('open')">
+                    <h3>Relation vs Property Flowchart</h3>
+                    <span class="card-icon">▶</span>
+                </div>
+                <div class="card-content">
+                    <div class="tree"><span class="q">Q1: Does that "thing" exist as an entity in Port?</span>
+├── <span class="no">NO</span> → <span class="result">PROPERTY</span> <span class="note">(store as string)</span>
+│   └── Should it be an entity? → Model blueprint first, then <span class="result">RELATION</span>
+│
+└── <span class="yes">YES</span> → <span class="q">Q2: Need to navigate/filter by it?</span>
+    ├── <span class="yes">YES</span> → <span class="result">RELATION</span>
+    └── <span class="no">NO</span> → "Will you ever?" → <span class="result">RELATION</span> <span class="note">(do it right the first time)</span>
+
+<span class="q">Multiple references?</span>
+├── Fixed set, manually managed → <span class="result">RELATION</span> <span class="note">(many: true)</span>
+├── Dynamic, query-based → <span class="result">SEARCH-BASED RELATION</span>
+└── Just a list of strings → <span class="result">PROPERTY</span> <span class="note">(array type)</span></div>
+
+                    <div class="callout callout-info">
+                        <div class="callout-title">Rule of Thumb</div>
+                        <p style="margin:0">If you find yourself wanting to JOIN data or TRAVERSE a graph, you needed a relation.</p>
+                    </div>
+                </div>
+            </div>
+
+            <h2 id="dt-action">Decision Tree: Action vs Automation</h2>
+            <div class="card open">
+                <div class="card-header" onclick="this.parentElement.classList.toggle('open')">
+                    <h3>Action vs Automation Flowchart</h3>
+                    <span class="card-icon">▶</span>
+                </div>
+                <div class="card-content">
+                    <div class="tree"><span class="q">Q1: WHO/WHAT decides when it runs?</span>
+├── "Human clicks a button" → <span class="result">ACTION</span>
+├── "System event triggers it" → <span class="result">AUTOMATION</span>
+└── "On a schedule" → <span class="result">AUTOMATION</span> <span class="note">(timer trigger)</span>
+
+<span class="q">Q2: Requires approval?</span>
+├── <span class="yes">YES</span> → <span class="result">ACTION</span> <span class="note">(automations don't have approval flows)</span>
+└── <span class="no">NO</span> → Continue
+
+<span class="q">Q3: Human provides inputs?</span>
+├── <span class="yes">YES</span> → <span class="result">ACTION</span> <span class="note">(with userInputs)</span>
+└── <span class="no">NO</span> → <span class="result">AUTOMATION</span></div>
+
+                    <h4>Common Patterns</h4>
+                    <table>
+                        <thead><tr><th>Use Case</th><th>Action</th><th>Automation</th></tr></thead>
+                        <tbody>
+                            <tr><td>Scaffold new service</td><td>✓</td><td></td></tr>
+                            <tr><td>Notify Slack on deploy fail</td><td></td><td>✓</td></tr>
+                            <tr><td>Request environment (approval)</td><td>✓</td><td></td></tr>
+                            <tr><td>Auto-assign owner from repo</td><td></td><td>✓</td></tr>
+                            <tr><td>Weekly compliance report</td><td></td><td>✓</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <h2 id="dt-scorecard">Decision Tree: Scorecard vs Property</h2>
+            <div class="card open">
+                <div class="card-header" onclick="this.parentElement.classList.toggle('open')">
+                    <h3>Scorecard vs Property Flowchart</h3>
+                    <span class="card-icon">▶</span>
+                </div>
+                <div class="card-content">
+                    <div class="tree"><span class="q">Q1: What are you tracking?</span>
+├── "A fact/value that exists" → <span class="result">PROPERTY</span>
+├── "Compliance with a standard" → <span class="result">SCORECARD</span>
+├── "Something that needs fixing" → <span class="result">SCORECARD + ACTION</span>
+└── "Progress toward a goal" → <span class="result">SCORECARD</span> <span class="note">(with levels)</span>
+
+<span class="q">Q2: Need graduated levels (bronze/silver/gold)?</span>
+├── <span class="yes">YES</span> → <span class="result">SCORECARD</span>
+└── <span class="no">NO</span> → Pass/fail? → <span class="result">SCORECARD</span> or <span class="result">PROPERTY</span> <span class="note">(boolean)</span>
+
+<span class="q">Q3: Track trends over time?</span>
+├── <span class="yes">YES</span> → <span class="result">SCORECARD</span> <span class="note">(Port tracks history)</span>
+└── <span class="no">NO</span> → <span class="result">PROPERTY</span></div>
+
+                    <div class="callout callout-info">
+                        <div class="callout-title">Key Insight</div>
+                        <p style="margin:0"><strong>Scorecards</strong> = standards (should be true) · <strong>Properties</strong> = facts (are true) · <strong>Actions</strong> = changes (making true)</p>
+                    </div>
+                </div>
+            </div>
+
+            <h2 id="dt-integration">Decision Tree: Integration vs Webhook vs API</h2>
+            <div class="card open">
+                <div class="card-header" onclick="this.parentElement.classList.toggle('open')">
+                    <h3>Data Ingestion Flowchart</h3>
+                    <span class="card-icon">▶</span>
+                </div>
+                <div class="card-content">
+                    <div class="tree"><span class="q">Q1: Does Port have a native integration?</span>
+├── <span class="yes">YES</span> → Does it expose your data?
+│   ├── <span class="yes">YES</span> → <span class="result">USE INTEGRATION</span>
+│   └── Partially → <span class="result">INTEGRATION</span> + supplement with API/webhook
+│
+└── <span class="no">NO</span> → <span class="q">Q2: Can source push events?</span>
+    ├── <span class="yes">YES</span> → Real-time? → <span class="result">WEBHOOK</span>
+    │            Batch OK? → <span class="result">WEBHOOK</span> or scheduled <span class="result">API SCRIPT</span>
+    └── <span class="no">NO</span> → <span class="result">API SCRIPT</span> <span class="note">(cron, CI, Lambda)</span></div>
+
+                    <h4>Quick Matrix</h4>
+                    <table>
+                        <thead><tr><th>System</th><th>Integration?</th><th>Recommendation</th></tr></thead>
+                        <tbody>
+                            <tr><td>GitHub</td><td>✓</td><td>Integration</td></tr>
+                            <tr><td>Kubernetes</td><td>✓</td><td>Integration</td></tr>
+                            <tr><td>ArgoCD</td><td>✓</td><td>Integration</td></tr>
+                            <tr><td>Custom CMDB</td><td>✗</td><td>API script or webhook</td></tr>
+                            <tr><td>Snowflake</td><td>✗</td><td>API script (scheduled)</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- ANTI-PATTERNS -->
+            <h2 id="anti-patterns">Anti-Patterns (What Not to Do)</h2>
+
+            <div class="card">
+                <div class="card-header" onclick="this.parentElement.classList.toggle('open')">
+                    <h3>❌ Modeling too granularly too early</h3>
+                    <span class="card-icon">▶</span>
+                </div>
+                <div class="card-content">
+                    <p><strong>Mistake:</strong> Creating blueprints for every object type on day one.</p>
+                    <p><strong>Why it hurts:</strong> Burns rule limits, creates noise, overwhelms users.</p>
+                    <p><strong>Instead:</strong> Start coarse (Service, Team, Environment), refine based on actual needs.</p>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header" onclick="this.parentElement.classList.toggle('open')">
+                    <h3>❌ String properties instead of relations</h3>
+                    <span class="card-icon">▶</span>
+                </div>
+                <div class="card-content">
+                    <p><strong>Mistake:</strong> <code>owner: "platform-team"</code> as string instead of relation.</p>
+                    <p><strong>Why it hurts:</strong> Loses graph traversal, can't aggregate by team.</p>
+                    <p><strong>Instead:</strong> If target exists as an entity, use a relation.</p>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header" onclick="this.parentElement.classList.toggle('open')">
+                    <h3>❌ CVEs as entities</h3>
+                    <span class="card-icon">▶</span>
+                </div>
+                <div class="card-content">
+                    <p><strong>Mistake:</strong> Creating Vulnerability blueprint, ingesting every CVE.</p>
+                    <p><strong>Why it hurts:</strong> 100 apps × 5k CVEs = 500k entities. Analysis paralysis.</p>
+                    <p><strong>Instead:</strong> Aggregate on Service: <code>critical_vulns: 5</code>. Actions target Service.</p>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header" onclick="this.parentElement.classList.toggle('open')">
+                    <h3>❌ Building actions before data model is stable</h3>
+                    <span class="card-icon">▶</span>
+                </div>
+                <div class="card-content">
+                    <p><strong>Mistake:</strong> Complex self-service actions while blueprints are changing.</p>
+                    <p><strong>Why it hurts:</strong> Actions reference properties/relations. When those change, actions break.</p>
+                    <p><strong>Instead:</strong> Stabilize data model (Phases 1-3), then build actions.</p>
+                </div>
+            </div>
+
+            <!-- IMPLEMENTATION PHASES -->
+            <h2 id="phases">Implementation Phases</h2>
+            <table>
+                <thead><tr><th>#</th><th>Phase</th><th>Key Question</th><th>Outputs</th></tr></thead>
+                <tbody>
+                    <tr><td>1</td><td><strong>Domain Modeling</strong></td><td>What are the nouns?</td><td>Blueprint list, relation map</td></tr>
+                    <tr><td>2</td><td><strong>Data Ingestion</strong></td><td>Where does truth live?</td><td>Integration configs, mappings</td></tr>
+                    <tr><td>3</td><td><strong>Relationship Wiring</strong></td><td>How do things connect?</td><td>Relations, search relations</td></tr>
+                    <tr><td>4</td><td><strong>Enrichment</strong></td><td>What to derive?</td><td>Mirrors, calculations, aggregations</td></tr>
+                    <tr><td>5</td><td><strong>Standards</strong></td><td>What does "good" look like?</td><td>Scorecards, rules</td></tr>
+                    <tr><td>6</td><td><strong>Self-Service</strong></td><td>What can devs do?</td><td>Actions, approval flows</td></tr>
+                    <tr><td>7</td><td><strong>Automation</strong></td><td>What happens automatically?</td><td>Triggers, notifications</td></tr>
+                </tbody>
+            </table>
+
+            <div class="callout callout-info">
+                <div class="callout-title">Crawl, Walk, Run</div>
+                <p><strong>Phase 1:</strong> Service, Environment, Team (Low rule count)<br>
+                <strong>Phase 2:</strong> K8s Cluster, AWS Account, Database (Moderate)<br>
+                <strong>Phase 3:</strong> S3 Buckets, IAM Roles (High — monitor carefully)</p>
+            </div>
+
+            <hr style="margin: 2rem 0; border-color: var(--border);">
+            <p style="color: var(--text-muted); font-size: 0.85rem;"><strong>Summary:</strong> "Granularity is about cognitive load, not database size. A catalog with 1M files is unsearchable. A catalog with 1,000 services is a map of the organization."</p>
+
+        </main>
+    </div>
+
+    <button class="print-btn" onclick="window.print()">🖨️ Print</button>
+
+    <script>
+        // Smooth scroll
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', e => {
+                e.preventDefault();
+                document.querySelector(link.getAttribute('href'))?.scrollIntoView({ behavior: 'smooth' });
+            });
+        });
+
+        // Active nav highlight
+        const sections = document.querySelectorAll('h2[id]');
+        const navLinks = document.querySelectorAll('.nav-link');
+        window.addEventListener('scroll', () => {
+            let current = '';
+            sections.forEach(s => { if (scrollY >= s.offsetTop - 150) current = s.id; });
+            navLinks.forEach(l => {
+                l.classList.remove('active');
+                if (l.getAttribute('href') === `#${current}`) l.classList.add('active');
+            });
+        });
+    </script>
+</body>
+</html>
