@@ -29,7 +29,18 @@
             font-size: 15px;
         }
 
-        /* Header - matches cheatsheet */
+        .skip-link {
+            position: absolute;
+            top: -40px;
+            left: 0;
+            background: var(--accent);
+            color: #fff;
+            padding: 8px 16px;
+            z-index: 1000;
+            text-decoration: none;
+        }
+        .skip-link:focus { top: 0; }
+
         .header {
             background: linear-gradient(135deg, #1a1f2e 0%, #0d1117 100%);
             padding: 2rem;
@@ -40,20 +51,13 @@
             z-index: 100;
         }
 
-        .header h1 {
-            font-size: 1.75rem;
-            margin-bottom: 0.5rem;
-        }
-
-        .header p {
-            color: var(--text-muted);
-            font-size: 0.95rem;
-        }
+        .header h1 { font-size: 1.75rem; margin-bottom: 0.5rem; }
+        .header p { color: var(--text-muted); font-size: 0.95rem; }
 
         .header-links {
             margin-top: 1rem;
             display: flex;
-            gap: 1rem;
+            gap: 0.75rem;
             justify-content: center;
             flex-wrap: wrap;
         }
@@ -73,14 +77,8 @@
             border-color: var(--accent);
         }
 
-        /* Layout */
-        .container {
-            display: flex;
-            max-width: 1400px;
-            margin: 0 auto;
-        }
+        .container { display: flex; max-width: 1400px; margin: 0 auto; }
 
-        /* Sidebar */
         .sidebar {
             width: 260px;
             padding: 1.5rem;
@@ -91,10 +89,7 @@
             border-right: 1px solid var(--border);
         }
 
-        .nav-section {
-            margin-bottom: 1.5rem;
-        }
-
+        .nav-section { margin-bottom: 1.5rem; }
         .nav-title {
             font-size: 0.7rem;
             text-transform: uppercase;
@@ -116,12 +111,7 @@
         .nav-link:hover { background: var(--bg-hover); }
         .nav-link.active { background: var(--accent); color: #fff; }
 
-        /* Main Content */
-        .main {
-            flex: 1;
-            padding: 2rem;
-            max-width: 900px;
-        }
+        .main { flex: 1; padding: 2rem; max-width: 900px; }
 
         h2 {
             font-size: 1.4rem;
@@ -130,24 +120,11 @@
             border-bottom: 1px solid var(--border);
             color: var(--accent);
         }
-
         h2:first-of-type { margin-top: 0; }
-
-        h3 {
-            font-size: 1.1rem;
-            margin: 1.5rem 0 0.75rem;
-            color: var(--text);
-        }
-
-        h4 {
-            font-size: 0.95rem;
-            margin: 1rem 0 0.5rem;
-            color: var(--purple);
-        }
-
+        h3 { font-size: 1.1rem; margin: 1.5rem 0 0.75rem; color: var(--text); }
+        h4 { font-size: 0.95rem; margin: 1rem 0 0.5rem; color: var(--purple); }
         p { margin-bottom: 1rem; }
 
-        /* Cards - matches cheatsheet pattern cards */
         .card {
             background: var(--bg-card);
             border: 1px solid var(--border);
@@ -167,29 +144,12 @@
         }
 
         .card-header:hover { background: #2d333b; }
-
-        .card-header h3 {
-            margin: 0;
-            font-size: 0.95rem;
-        }
-
-        .card-icon {
-            font-size: 1rem;
-            transition: transform 0.2s;
-            color: var(--text-muted);
-        }
-
+        .card-header h3 { margin: 0; font-size: 0.95rem; }
+        .card-icon { font-size: 1rem; transition: transform 0.2s; color: var(--text-muted); }
         .card.open .card-icon { transform: rotate(90deg); }
-
-        .card-content {
-            display: none;
-            padding: 1.25rem;
-            border-top: 1px solid var(--border);
-        }
-
+        .card-content { display: none; padding: 1.25rem; border-top: 1px solid var(--border); }
         .card.open .card-content { display: block; }
 
-        /* Decision Tree Code Block */
         .tree {
             background: var(--bg-dark);
             border: 1px solid var(--border);
@@ -208,87 +168,26 @@
         .tree .result { color: var(--orange); font-weight: 600; }
         .tree .note { color: var(--text-muted); font-style: italic; }
 
-        /* Tables */
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 1rem 0;
-            font-size: 0.85rem;
-        }
-
-        th, td {
-            padding: 0.6rem 0.75rem;
-            text-align: left;
-            border: 1px solid var(--border);
-        }
-
-        th {
-            background: var(--bg-hover);
-            font-weight: 600;
-            color: var(--accent);
-        }
-
+        table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.85rem; }
+        th, td { padding: 0.6rem 0.75rem; text-align: left; border: 1px solid var(--border); }
+        th { background: var(--bg-hover); font-weight: 600; color: var(--accent); }
         tr:nth-child(even) { background: var(--bg-card); }
 
-        /* Badges */
-        .badge {
-            display: inline-block;
-            padding: 0.15rem 0.4rem;
-            border-radius: 4px;
-            font-size: 0.7rem;
-            font-weight: 600;
-        }
-
+        .badge { display: inline-block; padding: 0.15rem 0.4rem; border-radius: 4px; font-size: 0.7rem; font-weight: 600; }
         .badge-green { background: #238636; color: #fff; }
         .badge-yellow { background: #9e6a03; color: #fff; }
         .badge-red { background: #da3633; color: #fff; }
 
-        /* Callouts */
-        .callout {
-            padding: 1rem 1.25rem;
-            border-radius: 6px;
-            margin: 1rem 0;
-            border-left: 4px solid;
-        }
+        .callout { padding: 1rem 1.25rem; border-radius: 6px; margin: 1rem 0; border-left: 4px solid; }
+        .callout-info { background: rgba(88, 166, 255, 0.1); border-color: var(--accent); }
+        .callout-warning { background: rgba(210, 153, 34, 0.1); border-color: var(--orange); }
+        .callout-danger { background: rgba(248, 81, 73, 0.1); border-color: var(--red); }
+        .callout-title { font-weight: 600; margin-bottom: 0.5rem; }
 
-        .callout-info {
-            background: rgba(88, 166, 255, 0.1);
-            border-color: var(--accent);
-        }
-
-        .callout-warning {
-            background: rgba(210, 153, 34, 0.1);
-            border-color: var(--orange);
-        }
-
-        .callout-danger {
-            background: rgba(248, 81, 73, 0.1);
-            border-color: var(--red);
-        }
-
-        .callout-title {
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-        }
-
-        /* Code inline */
-        code {
-            background: var(--bg-hover);
-            padding: 0.15rem 0.35rem;
-            border-radius: 4px;
-            font-family: 'SF Mono', 'Fira Code', Consolas, monospace;
-            font-size: 0.85em;
-        }
-
-        /* Lists */
-        ul, ol {
-            margin: 0.75rem 0;
-            padding-left: 1.5rem;
-        }
-
+        code { background: var(--bg-hover); padding: 0.15rem 0.35rem; border-radius: 4px; font-family: 'SF Mono', 'Fira Code', Consolas, monospace; font-size: 0.85em; }
+        ul, ol { margin: 0.75rem 0; padding-left: 1.5rem; }
         li { margin-bottom: 0.3rem; }
 
-        /* Print Button */
         .print-btn {
             position: fixed;
             bottom: 1.5rem;
@@ -304,30 +203,19 @@
             box-shadow: 0 4px 12px rgba(0,0,0,0.3);
         }
 
-        .print-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(0,0,0,0.4);
-        }
+        .print-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,0.4); }
 
-        /* Mobile */
         @media (max-width: 900px) {
             .sidebar { display: none; }
             .main { padding: 1.5rem; }
             .header { position: relative; }
         }
 
-        /* Print */
         @media print {
             :root {
-                --bg-dark: #fff;
-                --bg-card: #f6f8fa;
-                --bg-hover: #eef1f4;
-                --border: #d0d7de;
-                --text: #1f2328;
-                --text-muted: #656d76;
-                --accent: #0969da;
+                --bg-dark: #fff; --bg-card: #f6f8fa; --bg-hover: #eef1f4;
+                --border: #d0d7de; --text: #1f2328; --text-muted: #656d76; --accent: #0969da;
             }
-
             body { font-size: 10pt; }
             .header, .sidebar, .print-btn { display: none !important; }
             .container { display: block; }
@@ -340,18 +228,21 @@
     </style>
 </head>
 <body>
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+    
     <header class="header">
         <h1>🧭 Port.io Implementation Mental Model</h1>
         <p>How to think about Port implementations — decision frameworks, not just patterns</p>
         <div class="header-links">
             <a href="index.html">📋 Pattern Cheat Sheet</a>
+            <a href="https://jq.port.io/" target="_blank">🔧 JQ Playground</a>
             <a href="https://docs.port.io" target="_blank">📚 Full Docs</a>
             <a href="#" onclick="window.print(); return false;">🖨️ Print / PDF</a>
         </div>
     </header>
 
     <div class="container">
-        <nav class="sidebar">
+        <nav class="sidebar" aria-label="Page navigation">
             <div class="nav-section">
                 <div class="nav-title">Foundation</div>
                 <a href="#entity-test" class="nav-link">The Entity Test</a>
@@ -378,8 +269,7 @@
             </div>
         </nav>
 
-        <main class="main">
-            <!-- ENTITY TEST -->
+        <main class="main" id="main-content">
             <h2 id="entity-test">The Entity Test (Golden Rule)</h2>
             <p>Before ingesting any data source, distinguish between an <strong>Entity</strong> (Blueprint) and a <strong>Property</strong> (Metadata). The 4M rule result limit exists because users confuse data availability with structural importance.</p>
 
@@ -393,7 +283,6 @@
                 </ol>
             </div>
 
-            <!-- GRANULARITY MATRICES -->
             <h2 id="cloud">Granularity: Cloud Resources</h2>
             <p><strong>The Trap:</strong> Cloud providers expose thousands of resource types. Ingesting them all creates a "Junkyard" catalog.</p>
             <table>
@@ -440,7 +329,6 @@
                 </tbody>
             </table>
 
-            <!-- DECISION TREES -->
             <h2 id="dt-property">Decision Tree: Property Type Selection</h2>
             <div class="card open">
                 <div class="card-header" onclick="this.parentElement.classList.toggle('open')">
@@ -591,7 +479,6 @@
                 </div>
             </div>
 
-            <!-- ANTI-PATTERNS -->
             <h2 id="anti-patterns">Anti-Patterns (What Not to Do)</h2>
 
             <div class="card">
@@ -642,7 +529,18 @@
                 </div>
             </div>
 
-            <!-- IMPLEMENTATION PHASES -->
+            <div class="card">
+                <div class="card-header" onclick="this.parentElement.classList.toggle('open')">
+                    <h3>❌ Over-engineering scorecards before data flows</h3>
+                    <span class="card-icon">▶</span>
+                </div>
+                <div class="card-content">
+                    <p><strong>Mistake:</strong> Designing elaborate multi-level scorecards before properties are populated.</p>
+                    <p><strong>Why it hurts:</strong> Scorecards reference properties. Empty properties = useless scorecards.</p>
+                    <p><strong>Instead:</strong> Get data flowing first. Add scorecards once you can evaluate them.</p>
+                </div>
+            </div>
+
             <h2 id="phases">Implementation Phases</h2>
             <table>
                 <thead><tr><th>#</th><th>Phase</th><th>Key Question</th><th>Outputs</th></tr></thead>
@@ -666,14 +564,12 @@
 
             <hr style="margin: 2rem 0; border-color: var(--border);">
             <p style="color: var(--text-muted); font-size: 0.85rem;"><strong>Summary:</strong> "Granularity is about cognitive load, not database size. A catalog with 1M files is unsearchable. A catalog with 1,000 services is a map of the organization."</p>
-
         </main>
     </div>
 
     <button class="print-btn" onclick="window.print()">🖨️ Print</button>
 
     <script>
-        // Smooth scroll
         document.querySelectorAll('.nav-link').forEach(link => {
             link.addEventListener('click', e => {
                 e.preventDefault();
@@ -681,7 +577,6 @@
             });
         });
 
-        // Active nav highlight
         const sections = document.querySelectorAll('h2[id]');
         const navLinks = document.querySelectorAll('.nav-link');
         window.addEventListener('scroll', () => {
