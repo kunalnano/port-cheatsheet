@@ -12,6 +12,19 @@
 
 ---
 
+## 👀 See It In Action
+
+<div align="center">
+
+| Pattern Cheat Sheet | Mental Model Guide |
+|:-------------------:|:------------------:|
+| ![Cheat Sheet Demo](assets/cheatsheet-demo.gif) | ![Mental Model Demo](assets/mental-model-demo.gif) |
+| Copy-paste patterns for implementation | Decision frameworks for architecture |
+
+</div>
+
+---
+
 ## 📚 What's Inside
 
 | Resource | Description | Use When |
@@ -90,16 +103,6 @@ open port-cheatsheet/index.html
 ```
 
 Both pages are **single-file HTML with zero dependencies** — they work completely offline.
-
----
-
-## 📝 File Reference
-
-| File | Description |
-|------|-------------|
-| `index.html` | Pattern Cheat Sheet (default, no dependencies) |
-| `index-prism.html` | Pattern Cheat Sheet with Prism.js syntax highlighting |
-| `port-mental-model.html` | Mental Model decision guide |
 
 ---
 
