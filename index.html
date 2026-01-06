@@ -243,6 +243,29 @@
     .footer a { color: #60a5fa; text-decoration: none; }
     .footer a:hover { text-decoration: underline; }
 
+    /* Skip link (a11y) */
+    .skip-link {
+      position: absolute;
+      left: -9999px;
+      top: 12px;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      z-index: 1000;
+      text-decoration: none;
+    }
+    .skip-link:focus-visible {
+      left: 20px;
+      top: 20px;
+      width: auto;
+      height: auto;
+      padding: 8px 12px;
+      background: #1e293b;
+      border: 1px solid #60a5fa;
+      border-radius: 8px;
+      color: #e2e8f0;
+    }
+
     @media (max-width: 600px) {
       .pattern-grid { grid-template-columns: 1fr; }
       h1 { font-size: 1.8rem; }
@@ -266,34 +289,7 @@
   </style>
 </head>
 <body>
-  <a href="#patternGrid" class="skip-link" 
-     onfocus="this.classList.add('visible')" 
-     onblur="this.classList.remove('visible')">
-    Skip to results
-  </a>
-  <style>
-    .skip-link {
-      position: absolute;
-      left: -9999px;
-      top: auto;
-      width: 1px;
-      height: 1px;
-      overflow: hidden;
-      z-index: 1000;
-      text-decoration: none;
-    }
-    .skip-link.visible {
-      left: 20px;
-      top: 20px;
-      width: auto;
-      height: auto;
-      padding: 8px 12px;
-      background: #1e293b;
-      border: 1px solid #60a5fa;
-      border-radius: 8px;
-      color: #e2e8f0;
-    }
-  </style>
+  <a href="#patternGrid" class="skip-link">Skip to results</a>
   <div class="container">
     <header>
       <h1>🚀 Port.io Implementation Cheat Sheet</h1>
@@ -301,7 +297,7 @@
       <p class="version">Last updated: January 5, 2026 • v2.10</p>
       <div class="header-actions">
         <button type="button" class="header-btn" onclick="window.print()" aria-label="Print this page or save as PDF">🖨️ Print / Save PDF</button>
-        <a href="https://docs.port.io" target="_blank" rel="noopener noreferrer" class="header-btn" aria-label="Open Port.io documentation">📚 Full Docs</a>
+        <a href="https://docs.port.io" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer" class="header-btn" aria-label="Open Port.io documentation">📚 Full Docs</a>
       </div>
     </header>
 
@@ -326,15 +322,15 @@
       </div>
 
       <div class="category-filters" role="tablist" aria-label="Filter by category">
-        <button type="button" class="category-btn active" role="tab" aria-selected="true" data-category="all">All</button>
-        <button type="button" class="category-btn" role="tab" aria-selected="false" data-category="blueprints">Blueprints</button>
-        <button type="button" class="category-btn" role="tab" aria-selected="false" data-category="mapping">Mapping</button>
-        <button type="button" class="category-btn" role="tab" aria-selected="false" data-category="actions">Actions</button>
-        <button type="button" class="category-btn" role="tab" aria-selected="false" data-category="scorecards">Scorecards</button>
-        <button type="button" class="category-btn" role="tab" aria-selected="false" data-category="automations">Automations</button>
-        <button type="button" class="category-btn" role="tab" aria-selected="false" data-category="jq">JQ</button>
-        <button type="button" class="category-btn" role="tab" aria-selected="false" data-category="api">API</button>
-        <button type="button" class="category-btn" role="tab" aria-selected="false" data-category="troubleshooting">Troubleshooting</button>
+        <button type="button" class="category-btn active" role="tab" aria-selected="true" aria-controls="patternGrid" data-category="all">All</button>
+        <button type="button" class="category-btn" role="tab" aria-selected="false" aria-controls="patternGrid" data-category="blueprints">Blueprints</button>
+        <button type="button" class="category-btn" role="tab" aria-selected="false" aria-controls="patternGrid" data-category="mapping">Mapping</button>
+        <button type="button" class="category-btn" role="tab" aria-selected="false" aria-controls="patternGrid" data-category="actions">Actions</button>
+        <button type="button" class="category-btn" role="tab" aria-selected="false" aria-controls="patternGrid" data-category="scorecards">Scorecards</button>
+        <button type="button" class="category-btn" role="tab" aria-selected="false" aria-controls="patternGrid" data-category="automations">Automations</button>
+        <button type="button" class="category-btn" role="tab" aria-selected="false" aria-controls="patternGrid" data-category="jq">JQ</button>
+        <button type="button" class="category-btn" role="tab" aria-selected="false" aria-controls="patternGrid" data-category="api">API</button>
+        <button type="button" class="category-btn" role="tab" aria-selected="false" aria-controls="patternGrid" data-category="troubleshooting">Troubleshooting</button>
       </div>
     </div>
 
@@ -356,7 +352,7 @@
     </div>
 
     <div class="footer">
-      💡 Click copy to grab snippets • Use 🔗 to share specific patterns • <a href="https://docs.port.io" target="_blank" rel="noopener noreferrer">docs.port.io</a> for full documentation
+      💡 Click copy to grab snippets • Use 🔗 to share specific patterns • <a href="https://docs.port.io" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer">docs.port.io</a> for full documentation
     </div>
   </div>
 
@@ -1676,6 +1672,7 @@ curl -X PATCH "https://api.getport.io/v1/actions/runs/RUN_ID" \\
     let searchTerm = '';
     let debounceTimer = null;
     let lastAnnouncedStatus = '';
+    let lastRenderKey = null;
 
     const prefersReducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -1747,8 +1744,19 @@ curl -X PATCH "https://api.getport.io/v1/actions/runs/RUN_ID" \\
       lastAnnouncedStatus = text;
     }
 
-    function renderPatterns({ announceStatus = false } = {}) {
+    function renderPatterns({ announceStatus = false, force = false } = {}) {
       const grid = document.getElementById('patternGrid');
+      
+      // Skip re-render if nothing changed (performance for large pattern sets)
+      const renderKey = `${activeCategory}|${includeCodeInSearch}|${searchTerm}`;
+      if (!force && renderKey === lastRenderKey) return;
+      lastRenderKey = renderKey;
+      
+      // Preserve focus for keyboard users
+      const prevFocusedId = document.activeElement?.classList?.contains('pattern-card')
+        ? document.activeElement.id
+        : null;
+      
       const filtered = filterPatterns();
 
       if (filtered.length === 0) {
@@ -1811,6 +1819,12 @@ curl -X PATCH "https://api.getport.io/v1/actions/runs/RUN_ID" \\
           </article>
         `;
       }).join('');
+
+      // Restore focus if card still exists
+      if (prevFocusedId) {
+        const stillThere = document.getElementById(prevFocusedId);
+        if (stillThere) stillThere.focus({ preventScroll: true });
+      }
     }
 
     // =========================
@@ -1872,17 +1886,21 @@ curl -X PATCH "https://api.getport.io/v1/actions/runs/RUN_ID" \\
 
     tabButtons.forEach(btn => {
       btn.addEventListener('click', () => setActiveCategory(btn.dataset.category));
-      btn.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          setActiveCategory(btn.dataset.category);
-        }
-      });
     });
 
-    // Tabs: arrow keys move focus only (Enter/Space activates)
+    // Tabs: unified keyboard handling (arrows move focus, Enter/Space activates)
     tablist.addEventListener('keydown', (e) => {
-      const currentIndex = tabButtons.findIndex(b => b.getAttribute('aria-selected') === 'true');
+      const focusedTab = document.activeElement?.closest?.('.category-btn[role="tab"]');
+      if (!focusedTab) return;
+
+      // Activate focused tab on Enter/Space
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        setActiveCategory(focusedTab.dataset.category);
+        return;
+      }
+
+      const currentIndex = tabButtons.indexOf(focusedTab);
       if (currentIndex < 0) return;
 
       let nextIndex = currentIndex;
@@ -1900,7 +1918,12 @@ curl -X PATCH "https://api.getport.io/v1/actions/runs/RUN_ID" \\
     // Global keyboard shortcuts
     document.addEventListener('keydown', (e) => {
       const activeEl = document.activeElement;
-      const isTypingField = activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA');
+      // FIX #3: Add contenteditable check for future-proofing
+      const isTypingField =
+        activeEl &&
+        (activeEl.tagName === 'INPUT' ||
+         activeEl.tagName === 'TEXTAREA' ||
+         activeEl.isContentEditable);
 
       if (e.key === '/' && !isTypingField) {
         e.preventDefault();
@@ -1922,8 +1945,11 @@ curl -X PATCH "https://api.getport.io/v1/actions/runs/RUN_ID" \\
       }
 
       if (e.key === 'Enter' && document.activeElement === document.getElementById('searchBox')) {
-        const first = document.querySelector('#patternGrid .pattern-card');
-        if (first) first.focus();
+        const first = document.querySelector('#patternGrid [role="listitem"]');
+        if (first) {
+          first.scrollIntoView({ behavior: prefersReducedMotion ? 'auto' : 'smooth', block: 'start' });
+          first.focus({ preventScroll: true });
+        }
       }
     });
 
@@ -1938,8 +1964,8 @@ curl -X PATCH "https://api.getport.io/v1/actions/runs/RUN_ID" \\
 
       const id = hash.slice(1);
 
-      // Render with current state first
-      renderPatterns({ announceStatus: false });
+      // Render with current state first (force to bypass renderKey check)
+      renderPatterns({ announceStatus: false, force: true });
 
       let el = document.getElementById(id);
 
@@ -1949,7 +1975,7 @@ curl -X PATCH "https://api.getport.io/v1/actions/runs/RUN_ID" \\
         searchTerm = '';
         document.getElementById('searchBox').value = '';
         setActiveCategory('all', { render: false });
-        renderPatterns({ announceStatus: false });
+        renderPatterns({ announceStatus: false, force: true });
         el = document.getElementById(id);
       }
 
