@@ -41,6 +41,14 @@
     }
     .header-btn:hover { background: #334155; border-color: #475569; }
     .header-btn:focus { outline: 2px solid #60a5fa; outline-offset: 2px; }
+    .header-btn-primary {
+      background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+      border-color: #60a5fa;
+    }
+    .header-btn-primary:hover {
+      background: linear-gradient(135deg, #2563eb, #7c3aed);
+      border-color: #818cf8;
+    }
 
     .notice-box {
       background: #1e293b;
@@ -294,10 +302,12 @@
     <header>
       <h1>🚀 Port.io Implementation Cheat Sheet</h1>
       <p class="subtitle">Copy-paste patterns for blueprints, mappings, actions, and automations</p>
-      <p class="version">Last updated: January 5, 2026 • v2.10</p>
+      <p class="version">Last updated: January 6, 2026 • v2.11</p>
       <div class="header-actions">
-        <button type="button" class="header-btn" onclick="window.print()" aria-label="Print this page or save as PDF">🖨️ Print / Save PDF</button>
+        <a href="port-mental-model.html" class="header-btn header-btn-primary" aria-label="Open Mental Model Guide">🧭 Mental Model</a>
+        <a href="https://jq.port.io/" target="_blank" rel="noopener noreferrer" class="header-btn" aria-label="Open JQ Playground">🔧 JQ Playground</a>
         <a href="https://docs.port.io" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer" class="header-btn" aria-label="Open Port.io documentation">📚 Full Docs</a>
+        <button type="button" class="header-btn" onclick="window.print()" aria-label="Print this page or save as PDF">🖨️ Print / Save PDF</button>
       </div>
     </header>
 
